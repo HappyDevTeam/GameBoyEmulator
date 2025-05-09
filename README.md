@@ -2,3 +2,5 @@
 Following this tutorial: https://rylev.github.io/DMG-01/public/book
 
 Use this if stuck on how to proceed: https://github.com/rylev/DMG-01/tree/master/lib-dmg-01
+
+CPU Instruction Guide: https://meganesu.github.io/generate-gb-opcodes/
