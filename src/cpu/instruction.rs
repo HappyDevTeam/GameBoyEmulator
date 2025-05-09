@@ -112,18 +112,18 @@ impl CPU {
     }
 
     fn add(&mut self, value: u8, with_carry: bool) -> u8 {
-        let additional_carry = if with_carry && self.registers.f.carry {
+        let add_carry = if with_carry && self.registers.f.carry {
             1
         } else {
             0
         };
         let (new_value, did_overflow) = self.registers.a.overflowing_add(value);
-        let (new_value2, did_overflow2) = new_value.overflowing_add(additional_carry);
+        let (new_value2, did_overflow2) = new_value.overflowing_add(add_carry);
         self.registers.f.zero = new_value2 == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow || did_overflow2;
         self.registers.f.half_carry =
-            (self.registers.a & 0xF) + (value & 0xF) + additional_carry > 0xF;
+            (self.registers.a & 0xF) + (value & 0xF) + add_carry > 0xF;
         new_value2
     }
 
