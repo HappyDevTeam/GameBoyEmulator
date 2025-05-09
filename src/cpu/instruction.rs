@@ -33,17 +33,24 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    fn from_byte(byte: u8) -> Option<Instruction> {
+    pub fn from_byte(byte: u8) -> Option<Instruction> {
         match byte {
             0x02 => Some(Instruction::INC(IncDecTarget::BC)),
             0x13 => Some(Instruction::INC(IncDecTarget::DE)),
-            _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS)
+            _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS),
         }
     }
 }
 
 pub enum ArithmeticTarget {
-    A, B, C, D, E, H, L, HL,
+    A,
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    HL,
 }
 
 pub enum ADDHLTarget {
@@ -107,46 +114,34 @@ impl From<BitPosition> for u8 {
 impl CPU {
     pub fn execute(&mut self, instruction: Instruction) -> u16 {
         match instruction {
-            Instruction::ADD(target) => {
-                let value = self.get_value(target);
+            Instruction::ADD(register) => {
+                let value = self.get_value(register);
                 let new_value = self.add(value, false);
                 self.registers.a = new_value;
                 self.pc.wrapping_add(1)
             }
-            Instruction::ADDHL(target) => {
-                match target {
-                    ADDHLTarget::BC => {
-                        let value = self.registers.get_bc();
-                        let new_value = self.add_hl(value);
-                        self.registers.set_hl(new_value);
-                        self.pc.wrapping_add(1)
-                    }
-                    ADDHLTarget::DE => {
-                        let value = self.registers.get_de();
-                        let new_value = self.add_hl(value);
-                        self.registers.set_hl(new_value);
-                        self.pc.wrapping_add(1)
-                    }
-                    ADDHLTarget::HL => {
-                        let value = self.registers.get_hl();
-                        let new_value = self.add_hl(value);
-                        self.registers.set_hl(new_value);
-                        self.pc.wrapping_add(1)
-                    }
-                    ADDHLTarget::SP => {
-                        let value = self.sp();
-                        let new_value = self.add_hl(value);
-                        self.registers.set_hl(new_value);
-                        self.pc.wrapping_add(1)
-                    }
-                }
+
+            Instruction::ADDHL(register) => {
+                let value = match register {
+                    ADDHLTarget::BC => self.registers.get_bc(),
+                    ADDHLTarget::DE => self.registers.get_de(),
+                    ADDHLTarget::HL => self.registers.get_hl(),
+                    ADDHLTarget::SP => self.sp(),
+                };
+
+                let new_value = self.add_hl(value);
+                self.registers.set_hl(new_value);
+                self.pc.wrapping_add(1)
             }
-            Instruction::ADC(target) => {
-                let value = self.get_value(target);
+
+            Instruction::ADC(register) => {
+                let value = self.get_value(register);
                 let new_value = self.add(value, true);
                 self.registers.a = new_value;
                 self.pc.wrapping_add(1)
             }
+
+            _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS),
         }
     }
 
@@ -174,8 +169,7 @@ impl CPU {
         self.registers.f.zero = new_value2 == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow || did_overflow2;
-        self.registers.f.half_carry =
-            (self.registers.a & 0xF) + (value & 0xF) + add_carry > 0xF;
+        self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) + add_carry > 0xF;
         new_value2
     }
 
@@ -184,8 +178,9 @@ impl CPU {
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow;
-        self.registers.f.half_carry = (self.registers.get_hl() & 0b111_1111_1111) +
-            (value & 0b111_1111_1111) > 0b111_1111_1111;
+        self.registers.f.half_carry = (self.registers.get_hl() & 0b111_1111_1111)
+            + (value & 0b111_1111_1111)
+            > 0b111_1111_1111;
         new_value
     }
 }
