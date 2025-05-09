@@ -6,29 +6,29 @@ pub enum Instruction {
     ADC(ArithmeticTarget),
     SUB(ArithmeticTarget),
     SBC(ArithmeticTarget),
-    AND(),
-    OR(),
-    CP(),
-    INC(),
-    DEC(),
-    CCF(),
-    SCF(),
-    RRA(),
-    RLA(),
-    RRCA(),
-    RRLA(),
-    CPL(),
-    BIT(),
-    RESET(),
-    SET(),
-    SRL(),
-    RR(),
-    RL(),
-    RRC(),
-    RLC(),
-    SRA(),
-    SLA(),
-    SWAP(),
+    AND(ArithmeticTarget),
+    OR(ArithmeticTarget),
+    CP(ArithmeticTarget),
+    INC(IncDecTarget),
+    DEC(IncDecTarget),
+    CCF,
+    SCF,
+    RRA,
+    RLA,
+    RRCA,
+    RLCA,
+    CPL,
+    BIT(PrefixTarget, BitPosition),
+    RESET(PrefixTarget, BitPosition),
+    SET(PrefixTarget, BitPosition),
+    SRL(PrefixTarget),
+    RR(PrefixTarget),
+    RL(PrefixTarget),
+    RRC(PrefixTarget),
+    RLC(PrefixTarget),
+    SRA(PrefixTarget),
+    SLA(PrefixTarget),
+    SWAP(PrefixTarget),
 }
 
 impl Instruction {
@@ -50,6 +50,57 @@ pub enum ADDHLTarget {
     DE,
     HL,
     SP,
+}
+
+pub enum IncDecTarget {
+    A,
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    BC,
+    DE,
+    HL,
+    SP,
+}
+
+pub enum PrefixTarget {
+    A,
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    HL,
+}
+
+pub enum BitPosition {
+    B0,
+    B1,
+    B2,
+    B3,
+    B4,
+    B5,
+    B6,
+    B7,
+}
+
+impl From<BitPosition> for u8 {
+    fn from(position: BitPosition) -> Self {
+        match position {
+            BitPosition::B0 => 0,
+            BitPosition::B1 => 1,
+            BitPosition::B2 => 2,
+            BitPosition::B3 => 3,
+            BitPosition::B4 => 4,
+            BitPosition::B5 => 5,
+            BitPosition::B6 => 6,
+            BitPosition::B7 => 7,
+        }
+    }
 }
 
 impl CPU {
