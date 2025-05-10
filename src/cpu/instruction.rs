@@ -127,7 +127,7 @@ impl CPU {
                     ADDHLTarget::BC => self.registers.get_bc(),
                     ADDHLTarget::DE => self.registers.get_de(),
                     ADDHLTarget::HL => self.registers.get_hl(),
-                    ADDHLTarget::SP => self.sp(),
+                    ADDHLTarget::SP => self.sp,
                 };
 
                 let new_value = self.add_hl(value);
@@ -198,7 +198,7 @@ impl CPU {
             }
 
             Instruction::RRCA => {
-                self.registers.a = self.rotate_right(self.registers.a);
+                self.registers.a = self.rotate_right(self.registers.a, true);
                 self.pc.wrapping_add(1)
             }
 
@@ -206,6 +206,7 @@ impl CPU {
                 self.registers.a = !self.registers.a;
                 self.registers.f.subtract = true;
                 self.registers.f.half_carry = true;
+                self.pc.wrapping_add(1)
             }
 
             Instruction::RESET(register, position) => {

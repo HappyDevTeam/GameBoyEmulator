@@ -13,7 +13,7 @@ pub struct CPU {
 
 impl CPU {
     pub fn step(&mut self) {
-        let mut instruction_byte = self.bus.read_byte(self.pc);
+        let instruction_byte = self.bus.read_byte(self.pc);
 
         let next_pc = if let Some(instruction) = Instruction::from_byte(instruction_byte) {
             self.execute(instruction)
