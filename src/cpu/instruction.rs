@@ -1,17 +1,31 @@
 use super::CPU;
 
+pub enum MemType {
+    REG(TargetReg),
+    DREG(TargetPair),
+    HLI
+}
+
+pub enum TargetReg {
+    A, F, B, C, D, E, H, L
+}
+
+pub enum TargetPair {
+    AF, BC, DE, HL
+}
+
 pub enum Instruction {
-    ADD(ArithmeticTarget),
-    ADDHL(ADDHLTarget),
-    ADC(ArithmeticTarget),
-    SUB(ArithmeticTarget),
-    SBC(ArithmeticTarget),
-    AND(ArithmeticTarget),
-    OR(ArithmeticTarget),
-    XOR(ArithmeticTarget),
-    CP(ArithmeticTarget),
-    INC(IncDecTarget),
-    DEC(IncDecTarget),
+    ADD(MemType),
+    ADDHL(MemType),
+    ADC(MemType),
+    SUB(MemType),
+    SBC(MemType),
+    AND(MemType),
+    OR(MemType),
+    XOR(MemType),
+    CP(MemType),
+    INC(MemType),
+    DEC(MemType),
     CCF,
     SCF,
     RRA,
@@ -19,71 +33,27 @@ pub enum Instruction {
     RRCA,
     RLCA,
     CPL,
-    BIT(PrefixTarget, BitPosition),
-    RESET(PrefixTarget, BitPosition),
-    SET(PrefixTarget, BitPosition),
-    SRL(PrefixTarget),
-    RR(PrefixTarget),
-    RL(PrefixTarget),
-    RRC(PrefixTarget),
-    RLC(PrefixTarget),
-    SRA(PrefixTarget),
-    SLA(PrefixTarget),
-    SWAP(PrefixTarget),
+    BIT(MemType, BitPosition),
+    RESET(MemType, BitPosition),
+    SET(MemType, BitPosition),
+    SRL(MemType),
+    RR(MemType),
+    RL(MemType),
+    RRC(MemType),
+    RLC(MemType),
+    SRA(MemType),
+    SLA(MemType),
+    SWAP(MemType),
 }
 
 impl Instruction {
     pub fn from_byte(byte: u8) -> Option<Instruction> {
         match byte {
-            0x02 => Some(Instruction::INC(IncDecTarget::BC)),
-            0x13 => Some(Instruction::INC(IncDecTarget::DE)),
+            0x02 => Some(Instruction::INC(MemType::BC)),
+            0x13 => Some(Instruction::INC(MemType::DE)),
             _ => todo!("ADD MAPPING FOR REST OF INSTRUCTIONS"),
         }
     }
-}
-
-pub enum ArithmeticTarget {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-    HL,
-}
-
-pub enum ADDHLTarget {
-    BC,
-    DE,
-    HL,
-    SP,
-}
-
-pub enum IncDecTarget {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-    HLI,
-    BC,
-    DE,
-    HL,
-    SP,
-}
-
-pub enum PrefixTarget {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-    HL,
 }
 
 pub enum BitPosition {
@@ -157,28 +127,28 @@ impl CPU {
 
             Instruction::INC(register) => {
                 match register {
-                    IncDecTarget::A => self.registers.a = self.inc_8bit(self.registers.a),
-                    IncDecTarget::B => self.registers.b = self.inc_8bit(self.registers.b),
-                    IncDecTarget::C => self.registers.c = self.inc_8bit(self.registers.c),
-                    IncDecTarget::D => self.registers.d = self.inc_8bit(self.registers.d),
-                    IncDecTarget::E => self.registers.e = self.inc_8bit(self.registers.e),
-                    IncDecTarget::H => self.registers.h = self.inc_8bit(self.registers.h),
-                    IncDecTarget::L => self.registers.l = self.inc_8bit(self.registers.l),
-                    IncDecTarget::HLI => {
+                    MemType::A => self.registers.a = self.inc_8bit(self.registers.a),
+                    MemType::B => self.registers.b = self.inc_8bit(self.registers.b),
+                    MemType::C => self.registers.c = self.inc_8bit(self.registers.c),
+                    MemType::D => self.registers.d = self.inc_8bit(self.registers.d),
+                    MemType::E => self.registers.e = self.inc_8bit(self.registers.e),
+                    MemType::H => self.registers.h = self.inc_8bit(self.registers.h),
+                    MemType::L => self.registers.l = self.inc_8bit(self.registers.l),
+                    MemType::HLI => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.inc_8bit(value);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
                     }
-                    IncDecTarget::BC => {
+                    MemType::BC => {
                         self.registers.set_bc(self.inc_16bit(self.registers.get_bc()))
                     }
-                    IncDecTarget::DE => {
+                    MemType::DE => {
                         self.registers.set_de(self.inc_16bit(self.registers.get_de()))
                     }
-                    IncDecTarget::HL => {
+                    MemType::HL => {
                         self.registers.set_hl(self.inc_16bit(self.registers.get_hl()))
                     }
-                    IncDecTarget::SP => {
+                    MemType::SP => {
                         self.sp = self.inc_16bit(self.sp)
                     }
                 };
@@ -211,21 +181,21 @@ impl CPU {
 
             Instruction::RESET(register, position) => {
                 match register {
-                    PrefixTarget::A =>
+                    MemType::A =>
                         self.registers.a = self.reset_bit(self.registers.a, position),
-                    PrefixTarget::B =>
+                    MemType::B =>
                         self.registers.b = self.reset_bit(self.registers.b, position),
-                    PrefixTarget::C =>
+                    MemType::C =>
                         self.registers.c = self.reset_bit(self.registers.c, position),
-                    PrefixTarget::D =>
+                    MemType::D =>
                         self.registers.d = self.reset_bit(self.registers.d, position),
-                    PrefixTarget::E =>
+                    MemType::E =>
                         self.registers.e = self.reset_bit(self.registers.e, position),
-                    PrefixTarget::H =>
+                    MemType::H =>
                         self.registers.h = self.reset_bit(self.registers.h, position),
-                    PrefixTarget::L =>
+                    MemType::L =>
                         self.registers.l = self.reset_bit(self.registers.l, position),
-                    PrefixTarget::HL => {
+                    MemType::HL => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.reset_bit(value, position);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
@@ -236,21 +206,21 @@ impl CPU {
 
             Instruction::SRL(register) => {
                 match register {
-                    PrefixTarget::A =>
+                    MemType::A =>
                         self.registers.a = self.shift_right_logical(self.registers.a),
-                    PrefixTarget::B =>
+                    MemType::B =>
                         self.registers.b = self.shift_right_logical(self.registers.b),
-                    PrefixTarget::C =>
+                    MemType::C =>
                         self.registers.c = self.shift_right_logical(self.registers.c),
-                    PrefixTarget::D =>
+                    MemType::D =>
                         self.registers.d = self.shift_right_logical(self.registers.d),
-                    PrefixTarget::E =>
+                    MemType::E =>
                         self.registers.e = self.shift_right_logical(self.registers.e),
-                    PrefixTarget::H =>
+                    MemType::H =>
                         self.registers.h = self.shift_right_logical(self.registers.h),
-                    PrefixTarget::L =>
+                    MemType::L =>
                         self.registers.l = self.shift_right_logical(self.registers.l),
-                    PrefixTarget::HL => {
+                    MemType::HL => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.shift_right_logical(value);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
@@ -261,28 +231,28 @@ impl CPU {
 
             Instruction::RR(register) => {
                 match register {
-                    PrefixTarget::A =>
+                    MemType::A =>
                         self.registers.a =
                             self.rotate_right_through_carry_set_zero(self.registers.a),
-                    PrefixTarget::B =>
+                    MemType::B =>
                         self.registers.b =
                             self.rotate_right_through_carry_set_zero(self.registers.b),
-                    PrefixTarget::C =>
+                    MemType::C =>
                         self.registers.c =
                             self.rotate_right_through_carry_set_zero(self.registers.c),
-                    PrefixTarget::D =>
+                    MemType::D =>
                         self.registers.d =
                             self.rotate_right_through_carry_set_zero(self.registers.d),
-                    PrefixTarget::E =>
+                    MemType::E =>
                         self.registers.e =
                             self.rotate_right_through_carry_set_zero(self.registers.e),
-                    PrefixTarget::H =>
+                    MemType::H =>
                         self.registers.h =
                             self.rotate_right_through_carry_set_zero(self.registers.h),
-                    PrefixTarget::L =>
+                    MemType::L =>
                         self.registers.l =
                             self.rotate_right_through_carry_set_zero(self.registers.l),
-                    PrefixTarget::HL => {
+                    MemType::HL => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.rotate_right_through_carry_set_zero(value);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
@@ -293,14 +263,14 @@ impl CPU {
 
             Instruction::RRC(register) => {
                 match register {
-                    PrefixTarget::A => self.registers.a = self.rotate_right(self.registers.a, true),
-                    PrefixTarget::B => self.registers.b = self.rotate_right(self.registers.b, true),
-                    PrefixTarget::C => self.registers.c = self.rotate_right(self.registers.c, true),
-                    PrefixTarget::D => self.registers.d = self.rotate_right(self.registers.d, true),
-                    PrefixTarget::E => self.registers.e = self.rotate_right(self.registers.e, true),
-                    PrefixTarget::H => self.registers.h = self.rotate_right(self.registers.h, true),
-                    PrefixTarget::L => self.registers.l = self.rotate_right(self.registers.l, true),
-                    PrefixTarget::HL => {
+                    MemType::A => self.registers.a = self.rotate_right(self.registers.a, true),
+                    MemType::B => self.registers.b = self.rotate_right(self.registers.b, true),
+                    MemType::C => self.registers.c = self.rotate_right(self.registers.c, true),
+                    MemType::D => self.registers.d = self.rotate_right(self.registers.d, true),
+                    MemType::E => self.registers.e = self.rotate_right(self.registers.e, true),
+                    MemType::H => self.registers.h = self.rotate_right(self.registers.h, true),
+                    MemType::L => self.registers.l = self.rotate_right(self.registers.l, true),
+                    MemType::HL => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.rotate_right(value, true);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
@@ -339,28 +309,28 @@ impl CPU {
             
             Instruction::DEC(register) => {
                 match register {
-                    IncDecTarget::A => self.registers.a = self.dec_8bit(self.registers.a),
-                    IncDecTarget::B => self.registers.b = self.dec_8bit(self.registers.b),
-                    IncDecTarget::C => self.registers.c = self.dec_8bit(self.registers.c),
-                    IncDecTarget::D => self.registers.d = self.dec_8bit(self.registers.d),
-                    IncDecTarget::E => self.registers.e = self.dec_8bit(self.registers.e),
-                    IncDecTarget::H => self.registers.h = self.dec_8bit(self.registers.h),
-                    IncDecTarget::L => self.registers.l = self.dec_8bit(self.registers.l),
-                    IncDecTarget::HLI => {
+                    MemType::A => self.registers.a = self.dec_8bit(self.registers.a),
+                    MemType::B => self.registers.b = self.dec_8bit(self.registers.b),
+                    MemType::C => self.registers.c = self.dec_8bit(self.registers.c),
+                    MemType::D => self.registers.d = self.dec_8bit(self.registers.d),
+                    MemType::E => self.registers.e = self.dec_8bit(self.registers.e),
+                    MemType::H => self.registers.h = self.dec_8bit(self.registers.h),
+                    MemType::L => self.registers.l = self.dec_8bit(self.registers.l),
+                    MemType::HLI => {
                         let value = self.bus.read_byte(self.registers.get_hl());
                         let new_value = self.dec_8bit(value);
                         self.bus.write_byte(self.registers.get_hl(), new_value);
                     }
-                    IncDecTarget::BC => {
+                    MemType::BC => {
                         self.registers.set_bc(self.dec_16bit(self.registers.get_bc()))
                     }
-                    IncDecTarget::DE => {
+                    MemType::DE => {
                         self.registers.set_de(self.dec_16bit(self.registers.get_de()))
                     }
-                    IncDecTarget::HL => {
+                    MemType::HL => {
                         self.registers.set_hl(self.dec_16bit(self.registers.get_hl()))
                     }
-                    IncDecTarget::SP => {
+                    MemType::SP => {
                         self.sp = self.dec_16bit(self.sp)
                     }
                 };
@@ -386,14 +356,14 @@ impl CPU {
             
             Instruction::BIT(prefix_target, bit_pos) => {
                 let value = match prefix_target {
-                    PrefixTarget::A  => self.registers.a,
-                    PrefixTarget::B  => self.registers.b,
-                    PrefixTarget::C  => self.registers.c,
-                    PrefixTarget::D  => self.registers.d,
-                    PrefixTarget::E  => self.registers.e,
-                    PrefixTarget::H  => self.registers.h,
-                    PrefixTarget::L  => self.registers.l,
-                    PrefixTarget::HL => self.bus.read_byte(self.registers.get_hl()),
+                    MemType::A  => self.registers.a,
+                    MemType::B  => self.registers.b,
+                    MemType::C  => self.registers.c,
+                    MemType::D  => self.registers.d,
+                    MemType::E  => self.registers.e,
+                    MemType::H  => self.registers.h,
+                    MemType::L  => self.registers.l,
+                    MemType::HL => self.bus.read_byte(self.registers.get_hl()),
                 };
                 self.test_bit(value, bit_pos);
                 self.pc.wrapping_add(2)
@@ -401,14 +371,14 @@ impl CPU {
             
             Instruction::SET(target, bit_pos) => {
                 match target {
-                    PrefixTarget::A  => self.registers.a = self.set_bit(self.registers.a, bit_pos),
-                    PrefixTarget::B  => self.registers.b = self.set_bit(self.registers.b, bit_pos),
-                    PrefixTarget::C  => self.registers.c = self.set_bit(self.registers.c, bit_pos),
-                    PrefixTarget::D  => self.registers.d = self.set_bit(self.registers.d, bit_pos),
-                    PrefixTarget::E  => self.registers.e = self.set_bit(self.registers.e, bit_pos),
-                    PrefixTarget::H  => self.registers.h = self.set_bit(self.registers.h, bit_pos),
-                    PrefixTarget::L  => self.registers.l = self.set_bit(self.registers.l, bit_pos),
-                    PrefixTarget::HL => {
+                    MemType::A  => self.registers.a = self.set_bit(self.registers.a, bit_pos),
+                    MemType::B  => self.registers.b = self.set_bit(self.registers.b, bit_pos),
+                    MemType::C  => self.registers.c = self.set_bit(self.registers.c, bit_pos),
+                    MemType::D  => self.registers.d = self.set_bit(self.registers.d, bit_pos),
+                    MemType::E  => self.registers.e = self.set_bit(self.registers.e, bit_pos),
+                    MemType::H  => self.registers.h = self.set_bit(self.registers.h, bit_pos),
+                    MemType::L  => self.registers.l = self.set_bit(self.registers.l, bit_pos),
+                    MemType::HL => {
                         let address = self.registers.get_hl();
                         let value = self.bus.read_byte(address);
                         let new_value = self.set_bit(value, bit_pos);
@@ -420,14 +390,14 @@ impl CPU {
             
             Instruction::RL(target) => {
                 match target {
-                    PrefixTarget::A  => self.registers.a = self.rotate_left(self.registers.a, true),
-                    PrefixTarget::B  => self.registers.b = self.rotate_left(self.registers.b, true),
-                    PrefixTarget::C  => self.registers.c = self.rotate_left(self.registers.c, true),
-                    PrefixTarget::D  => self.registers.d = self.rotate_left(self.registers.d, true),
-                    PrefixTarget::E  => self.registers.e = self.rotate_left(self.registers.e, true),
-                    PrefixTarget::H  => self.registers.h = self.rotate_left(self.registers.h, true),
-                    PrefixTarget::L  => self.registers.l = self.rotate_left(self.registers.l, true),
-                    PrefixTarget::HL => {
+                    MemType::A  => self.registers.a = self.rotate_left(self.registers.a, true),
+                    MemType::B  => self.registers.b = self.rotate_left(self.registers.b, true),
+                    MemType::C  => self.registers.c = self.rotate_left(self.registers.c, true),
+                    MemType::D  => self.registers.d = self.rotate_left(self.registers.d, true),
+                    MemType::E  => self.registers.e = self.rotate_left(self.registers.e, true),
+                    MemType::H  => self.registers.h = self.rotate_left(self.registers.h, true),
+                    MemType::L  => self.registers.l = self.rotate_left(self.registers.l, true),
+                    MemType::HL => {
                         let address = self.registers.get_hl();
                         let value = self.bus.read_byte(address);
                         let new_value = self.rotate_left(value, true);
@@ -441,16 +411,16 @@ impl CPU {
         }
     }
 
-    fn get_value(&self, register: ArithmeticTarget) -> u8 {
+    fn get_value(&self, register: MemType) -> u8 {
         match register {
-            ArithmeticTarget::A => self.registers.a,
-            ArithmeticTarget::B => self.registers.b,
-            ArithmeticTarget::C => self.registers.c,
-            ArithmeticTarget::D => self.registers.d,
-            ArithmeticTarget::E => self.registers.e,
-            ArithmeticTarget::H => self.registers.h,
-            ArithmeticTarget::L => self.registers.l,
-            ArithmeticTarget::HL => self.bus.read_byte(self.registers.get_hl()),
+            MemType::A => self.registers.a,
+            MemType::B => self.registers.b,
+            MemType::C => self.registers.c,
+            MemType::D => self.registers.d,
+            MemType::E => self.registers.e,
+            MemType::H => self.registers.h,
+            MemType::L => self.registers.l,
+            MemType::HL => self.bus.read_byte(self.registers.get_hl()),
         }
     }
     
