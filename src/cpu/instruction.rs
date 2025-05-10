@@ -312,6 +312,31 @@ impl CPU {
                 self.pc.wrapping_add(1)
             }
 
+            Instruction::SRA(register) => {
+                match register {
+                    PrefixTarget::A => self.registers.a = self.shift_right_arithmetic(self
+                        .registers.a),
+                    PrefixTarget::B => self.registers.b = self.shift_right_arithmetic(self
+                        .registers.b),
+                    PrefixTarget::C => self.registers.c = self.shift_right_arithmetic(self
+                        .registers.c),
+                    PrefixTarget::D => self.registers.d = self.shift_right_arithmetic(self
+                        .registers.d),
+                    PrefixTarget::E => self.registers.e = self.shift_right_arithmetic(self
+                        .registers.e),
+                    PrefixTarget::H => self.registers.h = self.shift_right_arithmetic(self
+                        .registers.h),
+                    PrefixTarget::L => self.registers.l = self.shift_right_arithmetic(self
+                        .registers.l),
+                    PrefixTarget::HL => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.shift_right_arithmetic(value);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                }
+                self.pc.wrapping_add(1)
+            }
+
             Instruction::SUB(register) => {
                 let value = self.get_value(register);
                 let new_value = self.sub(value);
@@ -442,9 +467,9 @@ impl CPU {
                     }
                 }
                 self.pc.wrapping_add(2)
-            }
-            
-            _ => todo!("ADD MAPPING FOR REST OF INSTRUCTIONS"),
+            },
+
+            Instruction::RLC(_) | Instruction::SLA(_) | Instruction::SWAP(_) => todo!()
         }
     }
 
