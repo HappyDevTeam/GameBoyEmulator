@@ -57,7 +57,7 @@ impl Registers {
     }
 }
 
-struct FlagsRegister {
+pub struct FlagsRegister {
     pub zero: bool,
     pub subtract: bool,
     pub half_carry: bool,

@@ -170,16 +170,19 @@ impl CPU {
                         self.bus.write_byte(self.registers.get_hl(), new_value);
                     }
                     IncDecTarget::BC => {
-                        self.registers.set_bc(self.inc_16bit(self.registers.get_bc()))
+                        let new_value = self.inc_16bit(self.registers.get_bc());
+                        self.registers.set_bc(new_value);
                     }
                     IncDecTarget::DE => {
-                        self.registers.set_de(self.inc_16bit(self.registers.get_de()))
+                        let new_value = self.inc_16bit(self.registers.get_de());
+                        self.registers.set_de(new_value);
                     }
                     IncDecTarget::HL => {
-                        self.registers.set_hl(self.inc_16bit(self.registers.get_hl()))
+                        let new_value = self.inc_16bit(self.registers.get_hl());
+                        self.registers.set_hl(new_value);
                     }
                     IncDecTarget::SP => {
-                        self.sp = self.inc_16bit(self.sp)
+                        self.sp = self.inc_16bit(self.sp);
                     }
                 };
                 self.pc.wrapping_add(1)
@@ -308,7 +311,7 @@ impl CPU {
                 };
                 self.pc.wrapping_add(1)
             }
-            
+
             Instruction::SUB(register) => {
                 let value = self.get_value(register);
                 let new_value = self.sub(value);
@@ -352,16 +355,20 @@ impl CPU {
                         self.bus.write_byte(self.registers.get_hl(), new_value);
                     }
                     IncDecTarget::BC => {
-                        self.registers.set_bc(self.dec_16bit(self.registers.get_bc()))
+                        let new_value = self.dec_16bit(self.registers.get_bc());
+                        self.registers.set_bc(new_value);
                     }
                     IncDecTarget::DE => {
-                        self.registers.set_de(self.dec_16bit(self.registers.get_de()))
+                        let new_value = self.dec_16bit(self.registers.get_de());
+                        self.registers.set_de(new_value);
                     }
                     IncDecTarget::HL => {
-                        self.registers.set_hl(self.dec_16bit(self.registers.get_hl()))
+                        let new_value = self.dec_16bit(self.registers.get_hl());
+                        self.registers.set_hl(new_value);
                     }
                     IncDecTarget::SP => {
-                        self.sp = self.dec_16bit(self.sp)
+                        let new_value = self.sp;
+                        self.sp = self.dec_16bit(new_value);
                     }
                 };
                 self.pc.wrapping_add(1)

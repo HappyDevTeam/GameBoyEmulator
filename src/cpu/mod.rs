@@ -25,7 +25,7 @@ impl CPU {
     }
 }
 
-struct MemoryBus {
+pub struct MemoryBus {
     memory: [u8; 0xFFFF],
 }
 
