@@ -40,7 +40,7 @@ impl Instruction {
         match byte {
             0x02 => Some(Instruction::INC(IncDecTarget::BC)),
             0x13 => Some(Instruction::INC(IncDecTarget::DE)),
-            _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS),
+            _ => todo!("ADD MAPPING FOR REST OF INSTRUCTIONS"),
         }
     }
 }
@@ -439,7 +439,7 @@ impl CPU {
                 self.pc.wrapping_add(2)
             }
             
-            _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS),
+            _ => todo!("ADD MAPPING FOR REST OF INSTRUCTIONS"),
         }
     }
 
