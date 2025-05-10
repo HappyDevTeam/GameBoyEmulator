@@ -1,6 +1,3 @@
-use std::path::Prefix;
-
-use crate::cpu::register::Registers;
 use super::CPU;
 
 pub enum Instruction {
