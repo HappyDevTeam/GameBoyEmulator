@@ -1,3 +1,4 @@
+use crate::cpu::register::Registers;
 use super::CPU;
 
 pub enum Instruction {
@@ -68,6 +69,7 @@ pub enum IncDecTarget {
     E,
     H,
     L,
+    HLI,
     BC,
     DE,
     HL,
@@ -97,7 +99,7 @@ pub enum BitPosition {
 }
 
 impl From<BitPosition> for u8 {
-    fn from(position: BitPosition) -> Self {
+    fn from(position: BitPosition) -> u8 {
         match position {
             BitPosition::B0 => 0,
             BitPosition::B1 => 1,
@@ -141,12 +143,177 @@ impl CPU {
                 self.pc.wrapping_add(1)
             }
 
+            Instruction::AND(register) => {
+                let value = self.get_value(register);
+                let new_value = self.and(value);
+                self.registers.a = new_value;
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::CP(register) => {
+                let value = self.get_value(register);
+                self.cp(value);
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::INC(register) => {
+                match register {
+                    IncDecTarget::A => self.registers.a = self.inc_8bit(self.registers.a),
+                    IncDecTarget::B => self.registers.b = self.inc_8bit(self.registers.b),
+                    IncDecTarget::C => self.registers.c = self.inc_8bit(self.registers.c),
+                    IncDecTarget::D => self.registers.d = self.inc_8bit(self.registers.d),
+                    IncDecTarget::E => self.registers.e = self.inc_8bit(self.registers.e),
+                    IncDecTarget::H => self.registers.h = self.inc_8bit(self.registers.h),
+                    IncDecTarget::L => self.registers.l = self.inc_8bit(self.registers.l),
+                    IncDecTarget::HLI => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.inc_8bit(value);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                    IncDecTarget::BC => {
+                        self.registers.set_bc(self.inc_16bit(self.registers.get_bc()))
+                    }
+                    IncDecTarget::DE => {
+                        self.registers.set_de(self.inc_16bit(self.registers.get_de()))
+                    }
+                    IncDecTarget::HL => {
+                        self.registers.set_hl(self.inc_16bit(self.registers.get_hl()))
+                    }
+                    IncDecTarget::SP => {
+                        self.sp = self.inc_16bit(self.sp)
+                    }
+                };
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::CCF => {
+                self.registers.f.subtract = false;
+                self.registers.f.half_carry = false;
+                self.registers.f.carry = !self.registers.f.carry;
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::RRA => {
+                self.registers.a = self.rotate_right_through_carry_retain_zero(self.registers.a);
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::RRCA => {
+                self.registers.a = self.rotate_right(self.registers.a);
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::CPL => {
+                self.registers.a = !self.registers.a;
+                self.registers.f.subtract = true;
+                self.registers.f.half_carry = true;
+            }
+
+            Instruction::RESET(register, position) => {
+                match register {
+                    PrefixTarget::A =>
+                        self.registers.a = self.reset_bit(self.registers.a, position),
+                    PrefixTarget::B =>
+                        self.registers.b = self.reset_bit(self.registers.b, position),
+                    PrefixTarget::C =>
+                        self.registers.c = self.reset_bit(self.registers.c, position),
+                    PrefixTarget::D =>
+                        self.registers.d = self.reset_bit(self.registers.d, position),
+                    PrefixTarget::E =>
+                        self.registers.e = self.reset_bit(self.registers.e, position),
+                    PrefixTarget::H =>
+                        self.registers.h = self.reset_bit(self.registers.h, position),
+                    PrefixTarget::L =>
+                        self.registers.l = self.reset_bit(self.registers.l, position),
+                    PrefixTarget::HL => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.reset_bit(value, position);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                };
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::SRL(register) => {
+                match register {
+                    PrefixTarget::A =>
+                        self.registers.a = self.shift_right_logical(self.registers.a),
+                    PrefixTarget::B =>
+                        self.registers.b = self.shift_right_logical(self.registers.b),
+                    PrefixTarget::C =>
+                        self.registers.c = self.shift_right_logical(self.registers.c),
+                    PrefixTarget::D =>
+                        self.registers.d = self.shift_right_logical(self.registers.d),
+                    PrefixTarget::E =>
+                        self.registers.e = self.shift_right_logical(self.registers.e),
+                    PrefixTarget::H =>
+                        self.registers.h = self.shift_right_logical(self.registers.h),
+                    PrefixTarget::L =>
+                        self.registers.l = self.shift_right_logical(self.registers.l),
+                    PrefixTarget::HL => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.shift_right_logical(value);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                };
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::RR(register) => {
+                match register {
+                    PrefixTarget::A =>
+                        self.registers.a =
+                            self.rotate_right_through_carry_set_zero(self.registers.a),
+                    PrefixTarget::B =>
+                        self.registers.b =
+                            self.rotate_right_through_carry_set_zero(self.registers.b),
+                    PrefixTarget::C =>
+                        self.registers.c =
+                            self.rotate_right_through_carry_set_zero(self.registers.c),
+                    PrefixTarget::D =>
+                        self.registers.d =
+                            self.rotate_right_through_carry_set_zero(self.registers.d),
+                    PrefixTarget::E =>
+                        self.registers.e =
+                            self.rotate_right_through_carry_set_zero(self.registers.e),
+                    PrefixTarget::H =>
+                        self.registers.h =
+                            self.rotate_right_through_carry_set_zero(self.registers.h),
+                    PrefixTarget::L =>
+                        self.registers.l =
+                            self.rotate_right_through_carry_set_zero(self.registers.l),
+                    PrefixTarget::HL => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.rotate_right_through_carry_set_zero(value);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                };
+                self.pc.wrapping_add(1)
+            }
+
+            Instruction::RRC(register) => {
+                match register {
+                    PrefixTarget::A => self.registers.a = self.rotate_right(self.registers.a, true),
+                    PrefixTarget::B => self.registers.b = self.rotate_right(self.registers.b, true),
+                    PrefixTarget::C => self.registers.c = self.rotate_right(self.registers.c, true),
+                    PrefixTarget::D => self.registers.d = self.rotate_right(self.registers.d, true),
+                    PrefixTarget::E => self.registers.e = self.rotate_right(self.registers.e, true),
+                    PrefixTarget::H => self.registers.h = self.rotate_right(self.registers.h, true),
+                    PrefixTarget::L => self.registers.l = self.rotate_right(self.registers.l, true),
+                    PrefixTarget::HL => {
+                        let value = self.bus.read_byte(self.registers.get_hl());
+                        let new_value = self.rotate_right(value, true);
+                        self.bus.write_byte(self.registers.get_hl(), new_value);
+                    }
+                };
+                self.pc.wrapping_add(1)
+            }
             _ => todo!(ADD MAPPING FOR REST OF INSTRUCTIONS),
         }
     }
 
-    fn get_value(&self, target: ArithmeticTarget) -> u8 {
-        match target {
+    fn get_value(&self, register: ArithmeticTarget) -> u8 {
+        match register {
             ArithmeticTarget::A => self.registers.a,
             ArithmeticTarget::B => self.registers.b,
             ArithmeticTarget::C => self.registers.c,
@@ -168,8 +335,8 @@ impl CPU {
         let (new_value2, did_overflow2) = new_value.overflowing_add(add_carry);
         self.registers.f.zero = new_value2 == 0;
         self.registers.f.subtract = false;
-        self.registers.f.carry = did_overflow || did_overflow2;
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) + add_carry > 0xF;
+        self.registers.f.carry = did_overflow || did_overflow2;
         new_value2
     }
 
@@ -177,10 +344,88 @@ impl CPU {
         let (new_value, did_overflow) = self.registers.get_hl().overflowing_add(value);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
-        self.registers.f.carry = did_overflow;
         self.registers.f.half_carry = (self.registers.get_hl() & 0b111_1111_1111)
             + (value & 0b111_1111_1111)
             > 0b111_1111_1111;
+        self.registers.f.carry = did_overflow;
+        new_value
+    }
+
+    fn and(&mut self, value: u8) -> u8 {
+        let new_value = self.registers.a & value;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = true;
+        self.registers.f.carry = false;
+        new_value
+    }
+
+    fn cp(&mut self, value: u8) {
+        self.registers.f.zero = self.registers.a == value;
+        self.registers.f.subtract = true;
+        self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
+        self.registers.f.carry = self.registers.a < value;
+    }
+
+    fn inc_8bit(&mut self, value: u8) -> u8 {
+        let new_value = value.wrapping_add(1);
+        self.registers.f.zero = value == new_value;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = value & 0xF == 0xF;
+        new_value
+    }
+
+    fn inc_16bit(&mut self, value: u16) -> u16 {
+        value.wrapping_add(1)
+    }
+
+    fn rotate_right_through_carry_retain_zero(&mut self, value: u8) -> u8 {
+        self.rotate_right_through_carry(value, false)
+    }
+
+    fn rotate_right_through_carry_set_zero(&mut self, value: u8) -> u8 {
+        self.rotate_right_through_carry(value, true)
+    }
+
+    fn rotate_right_through_carry(&mut self, value: u8, set_zero: bool) -> u8 {
+        let carry_bit = (self.registers.f.carry as u8) << 7;
+        let new_value = carry_bit | (value >> 1);
+        self.registers.f.zero = set_zero && new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = value & 0b1 == 0b1;
+        new_value
+    }
+
+    fn rotate_right(&mut self, value: u8, set_zero: bool) -> u8 {
+        let new_value = value.rotate_right(1);
+        self.registers.f.zero = set_zero && new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = value & 0b1 == 0b1;
+        new_value
+    }
+
+    fn reset_bit(&mut self, value: u8, bit_position: BitPosition) -> u8 {
+        let bit_position: u8 = bit_position.into();
+        value & !(1 << bit_position)
+    }
+
+    fn shift_right_logical(&mut self, value: u8) -> u8 {
+        let new_value = value >> 1;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = value & 0b1 == 0b1;
+        new_value
+    }
+
+    fn shift_right_arithmetic(&mut self, value: u8) -> u8 {
+        let new_value = (value >> 1) | (value & 0x80);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = value & 0b1 == 0b1;
         new_value
     }
 }

@@ -64,7 +64,7 @@ struct FlagsRegister {
     pub carry: bool,
 }
 
-impl std::convert::From<FlagsRegister> for u8 {
+impl From<FlagsRegister> for u8 {
     fn from(flag: FlagsRegister) -> Self {
         (if flag.zero       { 1 } else { 0 }) << ZERO_FLAG_BYTE_POSITION |
         (if flag.subtract   { 1 } else { 0 }) << SUBTRACT_FLAG_BYTE_POSITION |
@@ -73,7 +73,7 @@ impl std::convert::From<FlagsRegister> for u8 {
     }
 }
 
-impl std::convert::From<u8> for FlagsRegister {
+impl From<u8> for FlagsRegister {
     fn from(byte: u8) -> Self {
         let zero = ((byte >> ZERO_FLAG_BYTE_POSITION) & 0b1) != 0;
         let subtract = ((byte >> SUBTRACT_FLAG_BYTE_POSITION) & 0b1) != 0;
