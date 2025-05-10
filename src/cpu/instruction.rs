@@ -7,11 +7,16 @@ pub enum MemType {
 }
 
 pub enum TargetReg {
-    A, F, B, C, D, E, H, L
+    A, B, C, D, E, H, L
 }
 
 pub enum TargetPair {
     AF, BC, DE, HL
+}
+
+pub enum RetType {
+    U8(u8),
+    U16(u16)
 }
 
 pub enum Instruction {
@@ -49,8 +54,8 @@ pub enum Instruction {
 impl Instruction {
     pub fn from_byte(byte: u8) -> Option<Instruction> {
         match byte {
-            0x02 => Some(Instruction::INC(MemType::BC)),
-            0x13 => Some(Instruction::INC(MemType::DE)),
+            0x02 => Some(Instruction::INC(MemType::PAIR(TargetPair::BC))),
+            0x13 => Some(Instruction::INC(MemType::PAIR(TargetPair::DE))),
             _ => todo!("ADD MAPPING FOR REST OF INSTRUCTIONS"),
         }
     }
@@ -83,6 +88,35 @@ impl From<BitPosition> for u8 {
 }
 
 impl CPU {
+
+    fn read(&mut self, mem_type: MemType) -> RetType {
+        match mem_type {
+            MemType::REG(reg) => {
+                match reg {
+                    TargetReg::A => RetType::U8(self.registers.a),
+                    TargetReg::B => RetType::U8(self.registers.b),
+                    TargetReg::C => RetType::U8(self.registers.c),
+                    TargetReg::D => RetType::U8(self.registers.d),
+                    TargetReg::E => RetType::U8(self.registers.e),
+                    TargetReg::H => RetType::U8(self.registers.h),
+                    TargetReg::L => RetType::U8(self.registers.l),
+                }
+            },
+            MemType::PAIR(pair) => {
+                match pair {
+                    TargetPair::AF => RetType::U16(self.registers.get_af()),
+                    TargetPair::BC => RetType::U16(self.registers.get_bc()),
+                    TargetPair::DE => RetType::U16(self.registers.get_de()),
+                    TargetPair::HL => RetType::U16(self.registers.get_hl()),
+                }
+            },
+            MemType::HLI => {
+                let address = self.registers.get_hl();
+                RetType::U8(self.bus.read_byte(address))
+            }
+        }
+    }
+
     pub fn execute(&mut self, instruction: Instruction) -> u16 {
         match instruction {
             Instruction::ADD(register) => {
