@@ -2,7 +2,7 @@ use super::CPU;
 
 pub enum MemType {
     REG(TargetReg),
-    DREG(TargetPair),
+    PAIR(TargetPair),
     HLI
 }
 
