@@ -30,6 +30,24 @@ impl CPU {
             0x8E => { self.add(self.bus.read_byte(self.registers.get_hl()), true); 1 }
             0x8F => { self.add(self.registers.a, true); 1 }
 
+            // ADDHL
+            0x09 => {
+                let value = self.registers.get_bc();
+                self.add_hl(value);
+                1
+            }
+            0x19 => {
+                let value = self.registers.get_de();
+                self.add_hl(value);
+                1
+            }
+            0x29 => {
+                let value = self.registers.get_hl();
+                self.add_hl(value);
+                1
+            }
+            0x39 => { self.add_hl(self.sp); 1 }
+
             // AND
             0xA0 => { self.and(self.registers.b); 1 }
             0xA1 => { self.and(self.registers.c); 1 }
@@ -66,17 +84,20 @@ impl CPU {
             0x3C => {self.registers.a = self.inc_8bit(self.registers.a); 1 }
             0x03 => {
                 let value = self.registers.get_bc();
-                self.registers.set_bc(self.inc_16bit(value));
+                let new_value = self.inc_16bit(value);
+                self.registers.set_bc(new_value);
                 1
             }
             0x13 => {
                 let value = self.registers.get_de();
-                self.registers.set_de(self.inc_16bit(value));
+                let new_value = self.inc_16bit(value);
+                self.registers.set_bc(new_value);
                 1
             }
             0x23 => {
                 let value = self.registers.get_hl();
-                self.registers.set_hl(self.inc_16bit(value));
+                let new_value = self.inc_16bit(value);
+                self.registers.set_bc(new_value);
                 1
             }
             0x33 => { self.sp = self.inc_16bit(self.sp); 1 }
@@ -354,7 +375,7 @@ impl CPU {
         self.registers.a = new_value2;
     }
 
-    fn add_hl(&mut self, value: u16) -> u16 {
+    fn add_hl(&mut self, value: u16) {
         let (new_value, did_overflow) = self.registers.get_hl().overflowing_add(value);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
@@ -362,7 +383,7 @@ impl CPU {
             + (value & 0b111_1111_1111)
             > 0b111_1111_1111;
         self.registers.f.carry = did_overflow;
-        new_value
+        self.registers.set_hl(new_value);
     }
 
     fn and(&mut self, value: u8) {
