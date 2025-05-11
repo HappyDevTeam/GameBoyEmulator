@@ -18,12 +18,7 @@ impl CPU {
             instruction_byte = self.bus.read_byte(self.pc + 1);
         }
 
-        let next_pc = if let Some(next_pc) = self.execute(instruction_byte, prefixed) {
-            next_pc
-        } else {
-            panic!("Unknown instruction found for: 0x{:x}", instruction_byte);
-        };
-
+        let next_pc = self.execute(instruction_byte, prefixed);
         self.pc = next_pc;
     }
 }

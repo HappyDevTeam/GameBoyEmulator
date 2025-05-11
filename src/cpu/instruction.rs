@@ -1,22 +1,24 @@
 use super::CPU;
 
 impl CPU {
-    pub fn execute(&mut self, byte: u8, prefixed: bool) -> Option<u16> {
+    pub fn execute(&mut self, byte: u8, prefixed: bool) -> u16 {
         if prefixed {
             return self.execute_prefixed(byte);
         }
         self.execute_non_prefixed(byte)
     }
 
-    fn execute_prefixed(&mut self, byte: u8) -> Option<u16> {
+    fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
-            _ => None,
+
+
+            _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
 
-    fn execute_non_prefixed(&mut self, byte: u8) -> Option<u16> {
+    fn execute_non_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
-            _ => None,
+            _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
 
