@@ -2,7 +2,6 @@ pub mod register;
 pub mod instruction;
 
 use self::register::Registers;
-use self::instruction::Instruction;
 
 pub struct CPU {
     pub registers: Registers,
@@ -13,10 +12,14 @@ pub struct CPU {
 
 impl CPU {
     pub fn step(&mut self) {
-        let instruction_byte = self.bus.read_byte(self.pc);
+        let mut instruction_byte = self.bus.read_byte(self.pc);
+        let prefixed = instruction_byte == 0xCB;
+        if prefixed {
+            instruction_byte = self.bus.read_byte(self.pc + 1);
+        }
 
-        let next_pc = if let Some(instruction) = Instruction::from_byte(instruction_byte) {
-            self.execute(instruction)
+        let next_pc = if let Some(next_pc) = self.execute(instruction_byte, prefixed) {
+            next_pc
         } else {
             panic!("Unknown instruction found for: 0x{:x}", instruction_byte);
         };
