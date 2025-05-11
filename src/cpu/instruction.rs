@@ -50,6 +50,40 @@ impl CPU {
             0xBE => {self.cp(self.bus.read_byte(self.registers.get_hl())); 1}
             0xBF => {self.cp(self.registers.a); 1}
 
+            // INC
+            0x04 => {self.registers.b = self.inc_8bit(self.registers.b); 1}
+            0x0C => {self.registers.c = self.inc_8bit(self.registers.c); 1}
+            0x14 => {self.registers.d = self.inc_8bit(self.registers.d); 1}
+            0x1C => {self.registers.e = self.inc_8bit(self.registers.e); 1}
+            0x24 => {self.registers.h = self.inc_8bit(self.registers.h); 1}
+            0x2C => {self.registers.l = self.inc_8bit(self.registers.l); 1}
+            0x34 => {
+                let address = self.registers.get_hl();
+                let value = self.inc_8bit(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                1
+            }
+            0x3C => {self.registers.a = self.inc_8bit(self.registers.a); 1}
+            0x03 => {
+                let value = self.registers.get_bc();
+                self.registers.set_bc(self.inc_16bit(value));
+                1
+            }
+            0x13 => {
+                let value = self.registers.get_de();
+                self.registers.set_de(self.inc_16bit(value));
+                1
+            }
+            0x23 => {
+                let value = self.registers.get_hl();
+                self.registers.set_hl(self.inc_16bit(value));
+                1
+            }
+            0x33 => {self.sp = self.inc_16bit(self.sp); 1}
+
+            // CCF
+            0x3F => {self.registers.f.carry = !self.registers.f.carry; 1}
+
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
             0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
@@ -160,8 +194,8 @@ impl CPU {
         let new_value = value.wrapping_add(1);
         self.registers.f.zero = value == new_value;
         self.registers.f.subtract = false;
-        self.registers.f.carry = false;
         self.registers.f.half_carry = value & 0xF == 0xF;
+        self.registers.f.carry = false;
         new_value
     }
 
