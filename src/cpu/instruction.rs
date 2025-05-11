@@ -11,59 +11,59 @@ impl CPU {
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
             // ADD
-            0x80 => {self.add(self.registers.b, false); 1}
-            0x81 => {self.add(self.registers.c, false); 1}
-            0x82 => {self.add(self.registers.d, false); 1}
-            0x83 => {self.add(self.registers.e, false); 1}
-            0x84 => {self.add(self.registers.h, false); 1}
-            0x85 => {self.add(self.registers.l, false); 1}
-            0x86 => {self.add(self.bus.read_byte(self.registers.get_hl()), false); 1}
-            0x87 => {self.add(self.registers.a, false); 1}
+            0x80 => { self.add(self.registers.b, false); 1 }
+            0x81 => { self.add(self.registers.c, false); 1 }
+            0x82 => { self.add(self.registers.d, false); 1 }
+            0x83 => { self.add(self.registers.e, false); 1 }
+            0x84 => { self.add(self.registers.h, false); 1 }
+            0x85 => { self.add(self.registers.l, false); 1 }
+            0x86 => { self.add(self.bus.read_byte(self.registers.get_hl()), false); 1 }
+            0x87 => { self.add(self.registers.a, false); 1 }
 
             // ADC
-            0x88 => {self.add(self.registers.b, true); 1}
-            0x89 => {self.add(self.registers.c, true); 1}
-            0x8A => {self.add(self.registers.d, true); 1}
-            0x8B => {self.add(self.registers.e, true); 1}
-            0x8C => {self.add(self.registers.h, true); 1}
-            0x8D => {self.add(self.registers.l, true); 1}
-            0x8E => {self.add(self.bus.read_byte(self.registers.get_hl()), true); 1}
-            0x8F => {self.add(self.registers.a, true); 1}
+            0x88 => { self.add(self.registers.b, true); 1 }
+            0x89 => { self.add(self.registers.c, true); 1 }
+            0x8A => { self.add(self.registers.d, true); 1 }
+            0x8B => { self.add(self.registers.e, true); 1 }
+            0x8C => { self.add(self.registers.h, true); 1 }
+            0x8D => { self.add(self.registers.l, true); 1 }
+            0x8E => { self.add(self.bus.read_byte(self.registers.get_hl()), true); 1 }
+            0x8F => { self.add(self.registers.a, true); 1 }
 
             // AND
-            0xA0 => {self.and(self.registers.b); 1}
-            0xA1 => {self.and(self.registers.c); 1}
-            0xA2 => {self.and(self.registers.d); 1}
-            0xA3 => {self.and(self.registers.e); 1}
-            0xA4 => {self.and(self.registers.h); 1}
-            0xA5 => {self.and(self.registers.l); 1}
-            0xA6 => {self.and(self.bus.read_byte(self.registers.get_hl())); 1}
-            0xA7 => {self.and(self.registers.b); 1}
+            0xA0 => { self.and(self.registers.b); 1 }
+            0xA1 => { self.and(self.registers.c); 1 }
+            0xA2 => { self.and(self.registers.d); 1 }
+            0xA3 => { self.and(self.registers.e); 1 }
+            0xA4 => { self.and(self.registers.h); 1 }
+            0xA5 => { self.and(self.registers.l); 1 }
+            0xA6 => { self.and(self.bus.read_byte(self.registers.get_hl())); 1 }
+            0xA7 => { self.and(self.registers.b); 1 }
 
             // CP
-            0xB8 => {self.cp(self.registers.b); 1}
-            0xB9 => {self.cp(self.registers.c); 1}
-            0xBA => {self.cp(self.registers.d); 1}
-            0xBB => {self.cp(self.registers.e); 1}
-            0xBC => {self.cp(self.registers.h); 1}
-            0xBD => {self.cp(self.registers.l); 1}
-            0xBE => {self.cp(self.bus.read_byte(self.registers.get_hl())); 1}
-            0xBF => {self.cp(self.registers.a); 1}
+            0xB8 => { self.cp(self.registers.b); 1 }
+            0xB9 => { self.cp(self.registers.c); 1 }
+            0xBA => { self.cp(self.registers.d); 1 }
+            0xBB => { self.cp(self.registers.e); 1 }
+            0xBC => { self.cp(self.registers.h); 1 }
+            0xBD => { self.cp(self.registers.l); 1 }
+            0xBE => { self.cp(self.bus.read_byte(self.registers.get_hl())); 1 }
+            0xBF => { self.cp(self.registers.a); 1 }
 
             // INC
-            0x04 => {self.registers.b = self.inc_8bit(self.registers.b); 1}
-            0x0C => {self.registers.c = self.inc_8bit(self.registers.c); 1}
-            0x14 => {self.registers.d = self.inc_8bit(self.registers.d); 1}
-            0x1C => {self.registers.e = self.inc_8bit(self.registers.e); 1}
-            0x24 => {self.registers.h = self.inc_8bit(self.registers.h); 1}
-            0x2C => {self.registers.l = self.inc_8bit(self.registers.l); 1}
+            0x04 => { self.registers.b = self.inc_8bit(self.registers.b); 1 }
+            0x0C => { self.registers.c = self.inc_8bit(self.registers.c); 1 }
+            0x14 => { self.registers.d = self.inc_8bit(self.registers.d); 1 }
+            0x1C => { self.registers.e = self.inc_8bit(self.registers.e); 1 }
+            0x24 => { self.registers.h = self.inc_8bit(self.registers.h); 1 }
+            0x2C => { self.registers.l = self.inc_8bit(self.registers.l); 1 }
             0x34 => {
                 let address = self.registers.get_hl();
                 let value = self.inc_8bit(self.bus.read_byte(address));
                 self.bus.write_byte(address, value);
                 1
             }
-            0x3C => {self.registers.a = self.inc_8bit(self.registers.a); 1}
+            0x3C => {self.registers.a = self.inc_8bit(self.registers.a); 1 }
             0x03 => {
                 let value = self.registers.get_bc();
                 self.registers.set_bc(self.inc_16bit(value));
@@ -79,10 +79,10 @@ impl CPU {
                 self.registers.set_hl(self.inc_16bit(value));
                 1
             }
-            0x33 => {self.sp = self.inc_16bit(self.sp); 1}
+            0x33 => { self.sp = self.inc_16bit(self.sp); 1 }
 
             // CCF
-            0x3F => {self.registers.f.carry = !self.registers.f.carry; 1}
+            0x3F => { self.registers.f.carry = !self.registers.f.carry; 1 }
 
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
