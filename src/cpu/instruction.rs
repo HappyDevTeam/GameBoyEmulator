@@ -5,10 +5,10 @@ impl CPU {
         if prefixed {
             return self.execute_prefixed(byte);
         }
-        self.execute_non_prefixed(byte)
+        self.execute_not_prefixed(byte)
     }
 
-    fn execute_prefixed(&mut self, byte: u8) -> u16 {
+    fn execute_not_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
             // ADD
             0x80 => { self.add(self.registers.b, false); 1 }
@@ -160,7 +160,7 @@ impl CPU {
         }
     }
 
-    fn execute_non_prefixed(&mut self, byte: u8) -> u16 {
+    fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
