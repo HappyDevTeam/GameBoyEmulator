@@ -28,6 +28,8 @@ impl CPU {
             0x1B => {self.dec_16bit(self.registers.get_de()); 1}
             0x2B => {self.dec_16bit(self.registers.get_hl()); 1}
             0x3B => {self.dec_16bit(self.sp); 1}
+            
+            0x37 => {self.scf(); 1}
 
             0x97 => {self.sub(self.registers.a); 1 }
             0x90 => {self.sub(self.registers.b); 1 }
@@ -223,6 +225,12 @@ impl CPU {
 
     fn dec_16bit(&mut self, value: u16) -> u16 {
         value.wrapping_sub(1)
+    }
+    
+    fn scf(&mut self) {
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = true;
     }
 
     fn rotate_left_through_carry(&mut self, value: u8, set_zero: bool) -> u8 {
