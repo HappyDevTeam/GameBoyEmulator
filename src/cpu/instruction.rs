@@ -29,6 +29,24 @@ impl CPU {
             0x9D => {self.sbc(self.registers.l); 1 }
             0x9E => {self.sbc(self.bus.read_byte(self.registers.get_hl())); 1}
 
+            0xAF => {self.xor(self.registers.a); 1 }
+            0xA8 => {self.xor(self.registers.b); 1 }
+            0xA9 => {self.xor(self.registers.c); 1 }
+            0xAA => {self.xor(self.registers.d); 1 }
+            0xAB => {self.xor(self.registers.e); 1 }
+            0xAC => {self.xor(self.registers.h); 1 }
+            0xAD => {self.xor(self.registers.l); 1 }
+            0xAE => {self.xor(self.bus.read_byte(self.registers.get_hl())); 1}
+            
+            0xB7 => {self.or(self.registers.a); 1 }
+            0xB0 => {self.or(self.registers.b); 1 }
+            0xB1 => {self.or(self.registers.c); 1 }
+            0xB2 => {self.or(self.registers.d); 1 }
+            0xB3 => {self.or(self.registers.e); 1 }
+            0xB4 => {self.or(self.registers.h); 1 }
+            0xB5 => {self.or(self.registers.l); 1 }
+            0xB6 => {self.or(self.bus.read_byte(self.registers.get_hl())); 1}
+            
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
@@ -158,22 +176,22 @@ impl CPU {
         self.registers.a = new_value2;
     }
 
-    fn or(&mut self, value: u8) -> u8 {
+    fn or(&mut self, value: u8) {
         let new_value = self.registers.a | value;
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = false;
         self.registers.f.half_carry = false;
-        new_value
+        self.registers.a = new_value;
     }
     
-    fn xor(&mut self, value: u8) -> u8 {
+    fn xor(&mut self, value: u8) {
         let new_value = self.registers.a ^ value;
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = false;
         self.registers.f.half_carry = false;
-        new_value
+        self.registers.a = new_value;
     }
     
     fn dec_8bit(&mut self, value: u8) -> u8 {
