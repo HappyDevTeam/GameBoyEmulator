@@ -180,11 +180,11 @@ impl CPU {
             0xB6 => { self.or(self.bus.read_byte(self.registers.get_hl())); 1 }
 
             // JP
-            0xC3 => { self.jump(true) }
-            0xC2 => { self.jump(self.registers.f.zero == false) }
-            0xD2 => { self.jump(self.registers.f.carry == false) }
-            0xCA => { self.jump(self.registers.f.zero == true) }
-            0xDA => { self.jump(self.registers.f.carry == true) }
+            0xC3 => { self.jump(true); 0 }
+            0xC2 => { self.jump(self.registers.f.zero == false); 0 }
+            0xD2 => { self.jump(self.registers.f.carry == false); 0 }
+            0xCA => { self.jump(self.registers.f.zero == true); 0 }
+            0xDA => { self.jump(self.registers.f.carry == true); 0 }
             0xE9 => { self.pc = self.registers.get_hl(); 0 }
             
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
@@ -555,13 +555,13 @@ impl CPU {
         value | (1 << bit_pos)
     }
 
-    fn jump(&mut self, should_jump: bool) -> u16 {
+    fn jump(&mut self, should_jump: bool) {
         if should_jump {
             let lsb = self.bus.read_byte(self.pc + 1) as u16;
             let msb = self.bus.read_byte(self.pc + 1) as u16;
-            lsb | (msb << 8)
+            self.pc = lsb | (msb << 8);
         } else {
-            self.pc.wrapping_add(3)
+            self.pc = self.pc.wrapping_add(3);
         }
     }
 }
