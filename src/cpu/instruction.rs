@@ -96,6 +96,12 @@ impl CPU {
                 1
             }
 
+            // CPL
+            0x2F => {
+                self.registers.a = !self.registers.a;
+                1
+            }
+
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
             0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
