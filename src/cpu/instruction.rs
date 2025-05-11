@@ -10,7 +10,32 @@ impl CPU {
 
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
-            
+            0x80 => {self.registers.a = self.add(self.registers.b, false); 1}
+            0x81 => {self.registers.a = self.add(self.registers.c, false); 1}
+            0x82 => {self.registers.a = self.add(self.registers.d, false); 1}
+            0x83 => {self.registers.a = self.add(self.registers.e, false); 1}
+            0x84 => {self.registers.a = self.add(self.registers.h, false); 1}
+            0x85 => {self.registers.a = self.add(self.registers.l, false); 1}
+            0x86 => {
+                let address = self.registers.get_hl();
+                self.registers.a = self.add(self.bus.read_byte(address), false);
+                1
+            }
+            0x87 => {self.registers.a = self.add(self.registers.a, false); 1}
+
+            0x88 => {self.registers.a = self.add(self.registers.b, true); 1}
+            0x89 => {self.registers.a = self.add(self.registers.c, true); 1}
+            0x8A => {self.registers.a = self.add(self.registers.d, true); 1}
+            0x8B => {self.registers.a = self.add(self.registers.e, true); 1}
+            0x8C => {self.registers.a = self.add(self.registers.h, true); 1}
+            0x8D => {self.registers.a = self.add(self.registers.l, true); 1}
+            0x8E => {
+                let address = self.registers.get_hl();
+                self.registers.a = self.add(self.bus.read_byte(address), true);
+                1
+            }
+            0x8F => {self.registers.a = self.add(self.registers.a, true); 1}
+
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
             0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
