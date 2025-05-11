@@ -274,6 +274,22 @@ impl CPU {
                 2
             }
             0xbf => { self.registers.a = self.reset_bit(self.registers.a, 7); 2 }
+
+            // SRL
+            0x38 => { self.registers.b = self.shift_right_logical(self.registers.b); 2 }
+            0x39 => { self.registers.c = self.shift_right_logical(self.registers.c); 2 }
+            0x3a => { self.registers.d = self.shift_right_logical(self.registers.d); 2 }
+            0x3b => { self.registers.e = self.shift_right_logical(self.registers.e); 2 }
+            0x3c => { self.registers.h = self.shift_right_logical(self.registers.h); 2 }
+            0x3d => { self.registers.l = self.shift_right_logical(self.registers.l); 2 }
+            0x3e => {
+                let address = self.registers.get_hl();
+                let value = self.shift_right_logical(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x3f => { self.registers.a = self.shift_right_logical(self.registers.a); 2 }
+
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
