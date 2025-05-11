@@ -290,6 +290,21 @@ impl CPU {
             }
             0x3f => { self.registers.a = self.shift_right_logical(self.registers.a); 2 }
 
+            // RR
+            0x18 => { self.registers.b = self.rotate_right(self.registers.b, false); 2 }
+            0x19 => { self.registers.c = self.rotate_right(self.registers.c, false); 2 }
+            0x1a => { self.registers.d = self.rotate_right(self.registers.d, false); 2 }
+            0x1b => { self.registers.e = self.rotate_right(self.registers.e, false); 2 }
+            0x1c => { self.registers.h = self.rotate_right(self.registers.h, false); 2 }
+            0x1d => { self.registers.l = self.rotate_right(self.registers.l, false); 2 }
+            0x1e => {
+                let address = self.registers.get_hl();
+                let value = self.rotate_right(self.bus.read_byte(address), false);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x1f => { self.registers.a = self.rotate_right(self.registers.a, false); 2 }
+
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
