@@ -136,46 +136,48 @@ impl CPU {
                 self.bus.write_byte(address, value);
                 1
             }
-            0x0B => {self.dec_16bit(self.registers.get_bc()); 1}
-            0x1B => {self.dec_16bit(self.registers.get_de()); 1}
-            0x2B => {self.dec_16bit(self.registers.get_hl()); 1}
-            0x3B => {self.dec_16bit(self.sp); 1}
+            0x0B => { self.dec_16bit(self.registers.get_bc()); 1 }
+            0x1B => { self.dec_16bit(self.registers.get_de()); 1 }
+            0x2B => { self.dec_16bit(self.registers.get_hl()); 1 }
+            0x3B => { self.dec_16bit(self.sp); 1 }
 
-            0x97 => {self.sub(self.registers.a); 1 }
-            0x90 => {self.sub(self.registers.b); 1 }
-            0x91 => {self.sub(self.registers.c); 1 }
-            0x92 => {self.sub(self.registers.d); 1 }
-            0x93 => {self.sub(self.registers.e); 1 }
-            0x94 => {self.sub(self.registers.h); 1 }
-            0x95 => {self.sub(self.registers.l); 1 }
-            0x96 => {self.sub(self.bus.read_byte(self.registers.get_hl())); 1}
-            
-            0x9F => {self.sbc(self.registers.a); 1 }
-            0x98 => {self.sbc(self.registers.b); 1 }
-            0x99 => {self.sbc(self.registers.c); 1 }
-            0x9A => {self.sbc(self.registers.d); 1 }
-            0x9B => {self.sbc(self.registers.e); 1 }
-            0x9C => {self.sbc(self.registers.h); 1 }
-            0x9D => {self.sbc(self.registers.l); 1 }
-            0x9E => {self.sbc(self.bus.read_byte(self.registers.get_hl())); 1}
+            0x37 => { self.scf(); 1 }
 
-            0xAF => {self.xor(self.registers.a); 1 }
-            0xA8 => {self.xor(self.registers.b); 1 }
-            0xA9 => {self.xor(self.registers.c); 1 }
-            0xAA => {self.xor(self.registers.d); 1 }
-            0xAB => {self.xor(self.registers.e); 1 }
-            0xAC => {self.xor(self.registers.h); 1 }
-            0xAD => {self.xor(self.registers.l); 1 }
-            0xAE => {self.xor(self.bus.read_byte(self.registers.get_hl())); 1}
+            0x97 => { self.sub(self.registers.a); 1 }
+            0x90 => { self.sub(self.registers.b); 1 }
+            0x91 => { self.sub(self.registers.c); 1 }
+            0x92 => { self.sub(self.registers.d); 1 }
+            0x93 => { self.sub(self.registers.e); 1 }
+            0x94 => { self.sub(self.registers.h); 1 }
+            0x95 => { self.sub(self.registers.l); 1 }
+            0x96 => { self.sub(self.bus.read_byte(self.registers.get_hl())); 1 }
             
-            0xB7 => {self.or(self.registers.a); 1 }
-            0xB0 => {self.or(self.registers.b); 1 }
-            0xB1 => {self.or(self.registers.c); 1 }
-            0xB2 => {self.or(self.registers.d); 1 }
-            0xB3 => {self.or(self.registers.e); 1 }
-            0xB4 => {self.or(self.registers.h); 1 }
-            0xB5 => {self.or(self.registers.l); 1 }
-            0xB6 => {self.or(self.bus.read_byte(self.registers.get_hl())); 1}
+            0x9F => { self.sbc(self.registers.a); 1 }
+            0x98 => { self.sbc(self.registers.b); 1 }
+            0x99 => { self.sbc(self.registers.c); 1 }
+            0x9A => { self.sbc(self.registers.d); 1 }
+            0x9B => { self.sbc(self.registers.e); 1 }
+            0x9C => { self.sbc(self.registers.h); 1 }
+            0x9D => { self.sbc(self.registers.l); 1 }
+            0x9E => { self.sbc(self.bus.read_byte(self.registers.get_hl())); 1 }
+
+            0xAF => { self.xor(self.registers.a); 1 }
+            0xA8 => { self.xor(self.registers.b); 1 }
+            0xA9 => { self.xor(self.registers.c); 1 }
+            0xAA => { self.xor(self.registers.d); 1 }
+            0xAB => { self.xor(self.registers.e); 1 }
+            0xAC => { self.xor(self.registers.h); 1 }
+            0xAD => { self.xor(self.registers.l); 1 }
+            0xAE => { self.xor(self.bus.read_byte(self.registers.get_hl())); 1 }
+            
+            0xB7 => { self.or(self.registers.a); 1 }
+            0xB0 => { self.or(self.registers.b); 1 }
+            0xB1 => { self.or(self.registers.c); 1 }
+            0xB2 => { self.or(self.registers.d); 1 }
+            0xB3 => { self.or(self.registers.e); 1 }
+            0xB4 => { self.or(self.registers.h); 1 }
+            0xB5 => { self.or(self.registers.l); 1 }
+            0xB6 => { self.or(self.bus.read_byte(self.registers.get_hl())); 1 }
             
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
@@ -508,6 +510,12 @@ impl CPU {
 
     fn dec_16bit(&mut self, value: u16) -> u16 {
         value.wrapping_sub(1)
+    }
+
+    fn scf(&mut self) {
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = true;
     }
 
     fn rotate_left_through_carry(&mut self, value: u8, set_zero: bool) -> u8 {
