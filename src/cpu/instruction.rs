@@ -10,31 +10,45 @@ impl CPU {
 
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
-            0x80 => {self.registers.a = self.add(self.registers.b, false); 1}
-            0x81 => {self.registers.a = self.add(self.registers.c, false); 1}
-            0x82 => {self.registers.a = self.add(self.registers.d, false); 1}
-            0x83 => {self.registers.a = self.add(self.registers.e, false); 1}
-            0x84 => {self.registers.a = self.add(self.registers.h, false); 1}
-            0x85 => {self.registers.a = self.add(self.registers.l, false); 1}
-            0x86 => {
-                let address = self.registers.get_hl();
-                self.registers.a = self.add(self.bus.read_byte(address), false);
-                1
-            }
-            0x87 => {self.registers.a = self.add(self.registers.a, false); 1}
+            // ADD
+            0x80 => {self.add(self.registers.b, false); 1}
+            0x81 => {self.add(self.registers.c, false); 1}
+            0x82 => {self.add(self.registers.d, false); 1}
+            0x83 => {self.add(self.registers.e, false); 1}
+            0x84 => {self.add(self.registers.h, false); 1}
+            0x85 => {self.add(self.registers.l, false); 1}
+            0x86 => {self.add(self.bus.read_byte(self.registers.get_hl()), false); 1}
+            0x87 => {self.add(self.registers.a, false); 1}
 
-            0x88 => {self.registers.a = self.add(self.registers.b, true); 1}
-            0x89 => {self.registers.a = self.add(self.registers.c, true); 1}
-            0x8A => {self.registers.a = self.add(self.registers.d, true); 1}
-            0x8B => {self.registers.a = self.add(self.registers.e, true); 1}
-            0x8C => {self.registers.a = self.add(self.registers.h, true); 1}
-            0x8D => {self.registers.a = self.add(self.registers.l, true); 1}
-            0x8E => {
-                let address = self.registers.get_hl();
-                self.registers.a = self.add(self.bus.read_byte(address), true);
-                1
-            }
-            0x8F => {self.registers.a = self.add(self.registers.a, true); 1}
+            // ADC
+            0x88 => {self.add(self.registers.b, true); 1}
+            0x89 => {self.add(self.registers.c, true); 1}
+            0x8A => {self.add(self.registers.d, true); 1}
+            0x8B => {self.add(self.registers.e, true); 1}
+            0x8C => {self.add(self.registers.h, true); 1}
+            0x8D => {self.add(self.registers.l, true); 1}
+            0x8E => {self.add(self.bus.read_byte(self.registers.get_hl()), true); 1}
+            0x8F => {self.add(self.registers.a, true); 1}
+
+            // AND
+            0xA0 => {self.and(self.registers.b); 1}
+            0xA1 => {self.and(self.registers.c); 1}
+            0xA2 => {self.and(self.registers.d); 1}
+            0xA3 => {self.and(self.registers.e); 1}
+            0xA4 => {self.and(self.registers.h); 1}
+            0xA5 => {self.and(self.registers.l); 1}
+            0xA6 => {self.and(self.bus.read_byte(self.registers.get_hl())); 1}
+            0xA7 => {self.and(self.registers.b); 1}
+
+            // CP
+            0xB8 => {self.cp(self.registers.b); 1}
+            0xB9 => {self.cp(self.registers.c); 1}
+            0xBA => {self.cp(self.registers.d); 1}
+            0xBB => {self.cp(self.registers.e); 1}
+            0xBC => {self.cp(self.registers.h); 1}
+            0xBD => {self.cp(self.registers.l); 1}
+            0xBE => {self.cp(self.bus.read_byte(self.registers.get_hl())); 1}
+            0xBF => {self.cp(self.registers.a); 1}
 
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
@@ -100,7 +114,7 @@ impl CPU {
         }
     }
 
-    fn add(&mut self, value: u8, with_carry: bool) -> u8 {
+    fn add(&mut self, value: u8, with_carry: bool) {
         let add_carry = if with_carry && self.registers.f.carry {
             1
         } else {
@@ -112,7 +126,7 @@ impl CPU {
         self.registers.f.subtract = false;
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) + add_carry > 0xF;
         self.registers.f.carry = did_overflow || did_overflow2;
-        new_value2
+        self.registers.a = new_value2;
     }
 
     fn add_hl(&mut self, value: u16) -> u16 {
@@ -126,13 +140,13 @@ impl CPU {
         new_value
     }
 
-    fn and(&mut self, value: u8) -> u8 {
+    fn and(&mut self, value: u8) {
         let new_value = self.registers.a & value;
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = true;
         self.registers.f.carry = false;
-        new_value
+        self.registers.a = new_value;
     }
 
     fn cp(&mut self, value: u8) {
