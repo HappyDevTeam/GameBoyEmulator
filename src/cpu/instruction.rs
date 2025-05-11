@@ -11,6 +11,23 @@ impl CPU {
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
 
+            0x97 => {self.sub(self.registers.a); 1 }
+            0x90 => {self.sub(self.registers.b); 1 }
+            0x91 => {self.sub(self.registers.c); 1 }
+            0x92 => {self.sub(self.registers.d); 1 }
+            0x93 => {self.sub(self.registers.e); 1 }
+            0x94 => {self.sub(self.registers.h); 1 }
+            0x95 => {self.sub(self.registers.l); 1 }
+            0x96 => {self.sub(self.bus.read_byte(self.registers.get_hl())); 1}
+            
+            0x9F => {self.sbc(self.registers.a); 1 }
+            0x98 => {self.sbc(self.registers.b); 1 }
+            0x99 => {self.sbc(self.registers.c); 1 }
+            0x9A => {self.sbc(self.registers.d); 1 }
+            0x9B => {self.sbc(self.registers.e); 1 }
+            0x9C => {self.sbc(self.registers.h); 1 }
+            0x9D => {self.sbc(self.registers.l); 1 }
+            0x9E => {self.sbc(self.bus.read_byte(self.registers.get_hl())); 1}
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
@@ -118,16 +135,16 @@ impl CPU {
         new_value
     }
     
-    fn sub(&mut self, value: u8) -> u8 {
+    fn sub(&mut self, value: u8) {
         let (new_value, did_overflow) = self.registers.a.overflowing_sub(value);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = true;
         self.registers.f.carry = did_overflow;
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
-        new_value
+        self.registers.a = new_value;
     }
     
-    fn sbc(&mut self, value: u8) -> u8 {
+    fn sbc(&mut self, value: u8) {
         let (new_value, did_overflow) = self.registers.a.overflowing_sub(value);
         let (new_value2, did_overflow2) = if self.registers.f.carry {
             new_value.overflowing_sub(1)
@@ -138,7 +155,7 @@ impl CPU {
         self.registers.f.subtract = true;
         self.registers.f.carry = did_overflow || did_overflow2;
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) + 1 > 0xF;
-        new_value2
+        self.registers.a = new_value2;
     }
 
     fn or(&mut self, value: u8) -> u8 {
