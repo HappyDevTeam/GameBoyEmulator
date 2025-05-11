@@ -18,8 +18,8 @@ impl CPU {
             instruction_byte = self.bus.read_byte(self.pc + 1);
         }
 
-        let next_pc = self.execute(instruction_byte, prefixed);
-        self.pc = next_pc;
+        let instruction_size = self.execute(instruction_byte, prefixed);
+        self.pc = self.pc.wrapping_add(instruction_size);
     }
 }
 
