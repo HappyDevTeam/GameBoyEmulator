@@ -10,6 +10,24 @@ impl CPU {
 
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
+            
+            0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
+            0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
+            0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
+            0x15 => {self.registers.d = self.dec_8bit(self.registers.d); 1 }
+            0x1D => {self.registers.e = self.dec_8bit(self.registers.e); 1 }
+            0x25 => {self.registers.h = self.dec_8bit(self.registers.h); 1 }
+            0x2D => {self.registers.l = self.dec_8bit(self.registers.l); 1 }
+            0x35 => {
+                let address = self.registers.get_hl();
+                let value = self.dec_8bit(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                1
+            }
+            0x0B => {self.dec_16bit(self.registers.get_bc()); 1}
+            0x1B => {self.dec_16bit(self.registers.get_de()); 1}
+            0x2B => {self.dec_16bit(self.registers.get_hl()); 1}
+            0x3B => {self.dec_16bit(self.sp); 1}
 
             0x97 => {self.sub(self.registers.a); 1 }
             0x90 => {self.sub(self.registers.b); 1 }
