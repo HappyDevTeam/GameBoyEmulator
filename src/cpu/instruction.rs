@@ -162,6 +162,118 @@ impl CPU {
 
     fn execute_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
+            // RES
+            0x80 => { self.registers.b = self.reset_bit(self.registers.b, 0); 2 }
+            0x81 => { self.registers.c = self.reset_bit(self.registers.c, 0); 2 }
+            0x82 => { self.registers.d = self.reset_bit(self.registers.d, 0); 2 }
+            0x83 => { self.registers.e = self.reset_bit(self.registers.e, 0); 2 }
+            0x84 => { self.registers.h = self.reset_bit(self.registers.h, 0); 2 }
+            0x85 => { self.registers.l = self.reset_bit(self.registers.l, 0); 2 }
+            0x86 => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 0);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x87 => { self.registers.a = self.reset_bit(self.registers.a, 0); 2 }
+
+            0x88 => { self.registers.b = self.reset_bit(self.registers.b, 1); 2 }
+            0x89 => { self.registers.c = self.reset_bit(self.registers.c, 1); 2 }
+            0x8a => { self.registers.d = self.reset_bit(self.registers.d, 1); 2 }
+            0x8b => { self.registers.e = self.reset_bit(self.registers.e, 1); 2 }
+            0x8c => { self.registers.h = self.reset_bit(self.registers.h, 1); 2 }
+            0x8d => { self.registers.l = self.reset_bit(self.registers.l, 1); 2 }
+            0x8e => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 1);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x8f => { self.registers.a = self.reset_bit(self.registers.a, 1); 2 }
+
+            0x90 => { self.registers.b = self.reset_bit(self.registers.b, 2); 2 }
+            0x91 => { self.registers.c = self.reset_bit(self.registers.c, 2); 2 }
+            0x92 => { self.registers.d = self.reset_bit(self.registers.d, 2); 2 }
+            0x93 => { self.registers.e = self.reset_bit(self.registers.e, 2); 2 }
+            0x94 => { self.registers.h = self.reset_bit(self.registers.h, 2); 2 }
+            0x95 => { self.registers.l = self.reset_bit(self.registers.l, 2); 2 }
+            0x96 => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 2);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x97 => { self.registers.a = self.reset_bit(self.registers.a, 2); 2 }
+
+            0x98 => { self.registers.b = self.reset_bit(self.registers.b, 3); 2 }
+            0x99 => { self.registers.c = self.reset_bit(self.registers.c, 3); 2 }
+            0x9a => { self.registers.d = self.reset_bit(self.registers.d, 3); 2 }
+            0x9b => { self.registers.e = self.reset_bit(self.registers.e, 3); 2 }
+            0x9c => { self.registers.h = self.reset_bit(self.registers.h, 3); 2 }
+            0x9d => { self.registers.l = self.reset_bit(self.registers.l, 3); 2 }
+            0x9e => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 3);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x9f => { self.registers.a = self.reset_bit(self.registers.a, 3); 2 }
+
+            0xa0 => { self.registers.b = self.reset_bit(self.registers.b, 4); 2 }
+            0xa1 => { self.registers.c = self.reset_bit(self.registers.c, 4); 2 }
+            0xa2 => { self.registers.d = self.reset_bit(self.registers.d, 4); 2 }
+            0xa3 => { self.registers.e = self.reset_bit(self.registers.e, 4); 2 }
+            0xa4 => { self.registers.h = self.reset_bit(self.registers.h, 4); 2 }
+            0xa5 => { self.registers.l = self.reset_bit(self.registers.l, 4); 2 }
+            0xa6 => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 4);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0xa7 => { self.registers.a = self.reset_bit(self.registers.a, 4); 2 }
+
+            0xa8 => { self.registers.b = self.reset_bit(self.registers.b, 5); 2 }
+            0xa9 => { self.registers.c = self.reset_bit(self.registers.c, 5); 2 }
+            0xaa => { self.registers.d = self.reset_bit(self.registers.d, 5); 2 }
+            0xab => { self.registers.e = self.reset_bit(self.registers.e, 5); 2 }
+            0xac => { self.registers.h = self.reset_bit(self.registers.h, 5); 2 }
+            0xad => { self.registers.l = self.reset_bit(self.registers.l, 5); 2 }
+            0xae => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 5);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0xaf => { self.registers.a = self.reset_bit(self.registers.a, 5); 2 }
+
+            0xb0 => { self.registers.b = self.reset_bit(self.registers.b, 6); 2 }
+            0xb1 => { self.registers.c = self.reset_bit(self.registers.c, 6); 2 }
+            0xb2 => { self.registers.d = self.reset_bit(self.registers.d, 6); 2 }
+            0xb3 => { self.registers.e = self.reset_bit(self.registers.e, 6); 2 }
+            0xb4 => { self.registers.h = self.reset_bit(self.registers.h, 6); 2 }
+            0xb5 => { self.registers.l = self.reset_bit(self.registers.l, 6); 2 }
+            0xb6 => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 6);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0xb7 => { self.registers.a = self.reset_bit(self.registers.a, 6); 2 }
+
+            0xb8 => { self.registers.b = self.reset_bit(self.registers.b, 7); 2 }
+            0xb9 => { self.registers.c = self.reset_bit(self.registers.c, 7); 2 }
+            0xba => { self.registers.d = self.reset_bit(self.registers.d, 7); 2 }
+            0xbb => { self.registers.e = self.reset_bit(self.registers.e, 7); 2 }
+            0xbc => { self.registers.h = self.reset_bit(self.registers.h, 7); 2 }
+            0xbd => { self.registers.l = self.reset_bit(self.registers.l, 7); 2 }
+            0xbe => {
+                let address = self.registers.get_hl();
+                let value = self.reset_bit(self.bus.read_byte(address), 7);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0xbf => { self.registers.a = self.reset_bit(self.registers.a, 7); 2 }
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
