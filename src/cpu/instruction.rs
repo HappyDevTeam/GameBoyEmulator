@@ -84,6 +84,18 @@ impl CPU {
             // CCF
             0x3F => { self.registers.f.carry = !self.registers.f.carry; 1 }
 
+            // RRA
+            0x1F => {
+                self.registers.a = self.rotate_right_through_carry(self.registers.a, true);
+                1
+            }
+
+            // RRCA
+            0x0F => {
+                self.registers.a = self.rotate_right(self.registers.a, true);
+                1
+            }
+
             0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
             0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
             0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
