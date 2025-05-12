@@ -428,6 +428,72 @@ impl CPU {
             0x7d => { self.test_bit(self.registers.l,                            7); 2 }
             0x7e => { self.test_bit(self.bus.read_byte(self.registers.get_hl()), 7); 2 }
             0x7f => { self.test_bit(self.registers.a,                            7); 2 }
+            
+            // SET
+            0xC0 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             0); 2 }
+            0xC1 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             0); 2 }
+            0xC2 => { self.registers.d = CPU::set_bit(self.registers.d,                                                             0); 2 }
+            0xC3 => { self.registers.e = CPU::set_bit(self.registers.e,                                                             0); 2 }
+            0xC4 => { self.registers.h = CPU::set_bit(self.registers.h,                                                             0); 2 }
+            0xC5 => { self.registers.l = CPU::set_bit(self.registers.l,                                                             0); 2 }
+            0xC6 => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 0)); 2 }
+            0xC7 => { self.registers.a = CPU::set_bit(self.registers.a,                                                             0); 2 }
+            0xC8 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             1); 2 }
+            0xC9 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             1); 2 }
+            0xCA => { self.registers.d = CPU::set_bit(self.registers.d,                                                             1); 2 }
+            0xCB => { self.registers.e = CPU::set_bit(self.registers.e,                                                             1); 2 }
+            0xCC => { self.registers.h = CPU::set_bit(self.registers.h,                                                             1); 2 }
+            0xCD => { self.registers.l = CPU::set_bit(self.registers.l,                                                             1); 2 }
+            0xCE => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 1)); 2 }
+            0xCF => { self.registers.a = CPU::set_bit(self.registers.a,                                                             1); 2 }
+            0xD0 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             2); 2 }
+            0xD1 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             2); 2 }
+            0xD2 => { self.registers.d = CPU::set_bit(self.registers.d,                                                             2); 2 }
+            0xD3 => { self.registers.e = CPU::set_bit(self.registers.e,                                                             2); 2 }
+            0xD4 => { self.registers.h = CPU::set_bit(self.registers.h,                                                             2); 2 }
+            0xD5 => { self.registers.l = CPU::set_bit(self.registers.l,                                                             2); 2 }
+            0xD6 => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 2)); 2 }
+            0xD7 => { self.registers.a = CPU::set_bit(self.registers.a,                                                             2); 2 }
+            0xD8 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             3); 2 }
+            0xD9 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             3); 2 }
+            0xDA => { self.registers.d = CPU::set_bit(self.registers.d,                                                             3); 2 }
+            0xDB => { self.registers.e = CPU::set_bit(self.registers.e,                                                             3); 2 }
+            0xDC => { self.registers.h = CPU::set_bit(self.registers.h,                                                             3); 2 }
+            0xDD => { self.registers.l = CPU::set_bit(self.registers.l,                                                             3); 2 }
+            0xDE => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 3)); 2 }
+            0xDF => { self.registers.a = CPU::set_bit(self.registers.a,                                                             3); 2 }
+            0xE0 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             4); 2 }
+            0xE1 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             4); 2 }
+            0xE2 => { self.registers.d = CPU::set_bit(self.registers.d,                                                             4); 2 }
+            0xE3 => { self.registers.e = CPU::set_bit(self.registers.e,                                                             4); 2 }
+            0xE4 => { self.registers.h = CPU::set_bit(self.registers.h,                                                             4); 2 }
+            0xE5 => { self.registers.l = CPU::set_bit(self.registers.l,                                                             4); 2 }
+            0xE6 => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 4)); 2 }
+            0xE7 => { self.registers.a = CPU::set_bit(self.registers.a,                                                             4); 2 }
+            0xE8 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             5); 2 }
+            0xE9 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             5); 2 }
+            0xEA => { self.registers.d = CPU::set_bit(self.registers.d,                                                             5); 2 }
+            0xEB => { self.registers.e = CPU::set_bit(self.registers.e,                                                             5); 2 }
+            0xEC => { self.registers.h = CPU::set_bit(self.registers.h,                                                             5); 2 }
+            0xED => { self.registers.l = CPU::set_bit(self.registers.l,                                                             5); 2 }
+            0xEE => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 5)); 2 }
+            0xEF => { self.registers.a = CPU::set_bit(self.registers.a,                                                             5); 2 }
+            0xF0 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             6); 2 }
+            0xF1 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             6); 2 }
+            0xF2 => { self.registers.d = CPU::set_bit(self.registers.d,                                                             6); 2 }
+            0xF3 => { self.registers.e = CPU::set_bit(self.registers.e,                                                             6); 2 }
+            0xF4 => { self.registers.h = CPU::set_bit(self.registers.h,                                                             6); 2 }
+            0xF5 => { self.registers.l = CPU::set_bit(self.registers.l,                                                             6); 2 }
+            0xF6 => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 6)); 2 }
+            0xF7 => { self.registers.a = CPU::set_bit(self.registers.a,                                                             6); 2 }
+            0xF8 => { self.registers.b = CPU::set_bit(self.registers.b,                                                             7); 2 }
+            0xF9 => { self.registers.c = CPU::set_bit(self.registers.c,                                                             7); 2 }
+            0xFA => { self.registers.d = CPU::set_bit(self.registers.d,                                                             7); 2 }
+            0xFB => { self.registers.e = CPU::set_bit(self.registers.e,                                                             7); 2 }
+            0xFC => { self.registers.h = CPU::set_bit(self.registers.h,                                                             7); 2 }
+            0xFD => { self.registers.l = CPU::set_bit(self.registers.l,                                                             7); 2 }
+            0xFE => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 7)); 2 }
+            0xFF => { self.registers.a = CPU::set_bit(self.registers.a,                                                             7); 2 }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
@@ -614,7 +680,7 @@ impl CPU {
         self.registers.f.half_carry = false;
     }
     
-    fn set_bit(&mut self, value: u8, bit_pos: u8) -> u8 {
+    fn set_bit(value: u8, bit_pos: u8) -> u8 {
         value | (1 << bit_pos)
     }
 
