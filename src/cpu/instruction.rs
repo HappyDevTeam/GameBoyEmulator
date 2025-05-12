@@ -169,7 +169,13 @@ impl CPU {
 
             // SCF
             0x37 => { self.scf(); 1 }
-
+            
+            // RLA
+            0x17 => { self.registers.a = self.rotate_left_through_carry(self.registers.a, false); 1 }
+            
+            // RLCA
+            0x07 => { self.registers.a = self.rotate_left(self.registers.a, false); 1 }
+            
             // JP
             0xC3 => { self.jump(true); 0 }
             0xC2 => { self.jump(self.registers.f.zero == false); 0 }
