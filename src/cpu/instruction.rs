@@ -123,26 +123,7 @@ impl CPU {
                 1
             }
 
-            0x3D => {self.registers.a = self.dec_8bit(self.registers.a); 1 }
-            0x05 => {self.registers.b = self.dec_8bit(self.registers.b); 1 }
-            0x0D => {self.registers.c = self.dec_8bit(self.registers.c); 1 }
-            0x15 => {self.registers.d = self.dec_8bit(self.registers.d); 1 }
-            0x1D => {self.registers.e = self.dec_8bit(self.registers.e); 1 }
-            0x25 => {self.registers.h = self.dec_8bit(self.registers.h); 1 }
-            0x2D => {self.registers.l = self.dec_8bit(self.registers.l); 1 }
-            0x35 => {
-                let address = self.registers.get_hl();
-                let value = self.dec_8bit(self.bus.read_byte(address));
-                self.bus.write_byte(address, value);
-                1
-            }
-            0x0B => { self.dec_16bit(self.registers.get_bc()); 1 }
-            0x1B => { self.dec_16bit(self.registers.get_de()); 1 }
-            0x2B => { self.dec_16bit(self.registers.get_hl()); 1 }
-            0x3B => { self.dec_16bit(self.sp); 1 }
-
-            0x37 => { self.scf(); 1 }
-
+            // SUB
             0x97 => { self.sub(self.registers.a); 1 }
             0x90 => { self.sub(self.registers.b); 1 }
             0x91 => { self.sub(self.registers.c); 1 }
@@ -152,6 +133,7 @@ impl CPU {
             0x95 => { self.sub(self.registers.l); 1 }
             0x96 => { self.sub(self.bus.read_byte(self.registers.get_hl())); 1 }
             
+            // SBC
             0x9F => { self.sbc(self.registers.a); 1 }
             0x98 => { self.sbc(self.registers.b); 1 }
             0x99 => { self.sbc(self.registers.c); 1 }
@@ -160,16 +142,8 @@ impl CPU {
             0x9C => { self.sbc(self.registers.h); 1 }
             0x9D => { self.sbc(self.registers.l); 1 }
             0x9E => { self.sbc(self.bus.read_byte(self.registers.get_hl())); 1 }
-
-            0xAF => { self.xor(self.registers.a); 1 }
-            0xA8 => { self.xor(self.registers.b); 1 }
-            0xA9 => { self.xor(self.registers.c); 1 }
-            0xAA => { self.xor(self.registers.d); 1 }
-            0xAB => { self.xor(self.registers.e); 1 }
-            0xAC => { self.xor(self.registers.h); 1 }
-            0xAD => { self.xor(self.registers.l); 1 }
-            0xAE => { self.xor(self.bus.read_byte(self.registers.get_hl())); 1 }
             
+            // OR
             0xB7 => { self.or(self.registers.a); 1 }
             0xB0 => { self.or(self.registers.b); 1 }
             0xB1 => { self.or(self.registers.c); 1 }
@@ -178,6 +152,38 @@ impl CPU {
             0xB4 => { self.or(self.registers.h); 1 }
             0xB5 => { self.or(self.registers.l); 1 }
             0xB6 => { self.or(self.bus.read_byte(self.registers.get_hl())); 1 }
+            
+            // XOR
+            0xAF => { self.xor(self.registers.a); 1 }
+            0xA8 => { self.xor(self.registers.b); 1 }
+            0xA9 => { self.xor(self.registers.c); 1 }
+            0xAA => { self.xor(self.registers.d); 1 }
+            0xAB => { self.xor(self.registers.e); 1 }
+            0xAC => { self.xor(self.registers.h); 1 }
+            0xAD => { self.xor(self.registers.l); 1 }
+            0xAE => { self.xor(self.bus.read_byte(self.registers.get_hl())); 1 }
+
+            // DEC
+            0x3D => { self.registers.a = self.dec_8bit(self.registers.a); 1 }
+            0x05 => { self.registers.b = self.dec_8bit(self.registers.b); 1 }
+            0x0D => { self.registers.c = self.dec_8bit(self.registers.c); 1 }
+            0x15 => { self.registers.d = self.dec_8bit(self.registers.d); 1 }
+            0x1D => { self.registers.e = self.dec_8bit(self.registers.e); 1 }
+            0x25 => { self.registers.h = self.dec_8bit(self.registers.h); 1 }
+            0x2D => { self.registers.l = self.dec_8bit(self.registers.l); 1 }
+            0x35 => {
+                let address = self.registers.get_hl();
+                let value = self.dec_8bit(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                1
+            }
+            0x0B => { self.registers.set_af(CPU::dec_16bit(self.registers.get_bc())); 1 }
+            0x1B => { self.registers.set_de(CPU::dec_16bit(self.registers.get_de())); 1 }
+            0x2B => { self.registers.set_hl(CPU::dec_16bit(self.registers.get_hl())); 1 }
+            0x3B => { self.sp = CPU::dec_16bit(self.sp); 1 }
+
+            // SCF
+            0x37 => { self.scf(); 1 }
 
             // JP
             0xC3 => { self.jump(true); 0 }
@@ -516,7 +522,7 @@ impl CPU {
         new_value
     }
 
-    fn dec_16bit(&mut self, value: u16) -> u16 {
+    fn dec_16bit(value: u16) -> u16 {
         value.wrapping_sub(1)
     }
 
