@@ -524,8 +524,36 @@ impl CPU {
                 2
             }
             0x07 => { self.registers.a = self.rotate_left(self.registers.a, false); 2 }
-
-            _ => panic!("Unknown instruction found for: 0x{:x}", byte),
+            
+            // SLA
+            0x20 => { self.registers.b = self.shift_left_arithmetic(self.registers.b); 2 }
+            0x21 => { self.registers.c = self.shift_left_arithmetic(self.registers.c); 2 }
+            0x22 => { self.registers.d = self.shift_left_arithmetic(self.registers.d); 2 }
+            0x23 => { self.registers.e = self.shift_left_arithmetic(self.registers.e); 2 }
+            0x24 => { self.registers.h = self.shift_left_arithmetic(self.registers.h); 2 }
+            0x25 => { self.registers.l = self.shift_left_arithmetic(self.registers.l); 2 }
+            0x26 => {
+                let address = self.registers.get_hl();
+                let value = self.shift_left_arithmetic(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x27 => { self.registers.a = self.shift_left_arithmetic(self.registers.a); 2 }
+            
+            // SWAP
+            0x30 => { self.registers.b = self.swap(self.registers.b); 2 }
+            0x31 => { self.registers.c = self.swap(self.registers.c); 2 }
+            0x32 => { self.registers.d = self.swap(self.registers.d); 2 }
+            0x33 => { self.registers.e = self.swap(self.registers.e); 2 }
+            0x34 => { self.registers.h = self.swap(self.registers.h); 2 }
+            0x35 => { self.registers.l = self.swap(self.registers.l); 2 }
+            0x36 => {
+                let address = self.registers.get_hl();
+                let value = self.swap(self.bus.read_byte(address));
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x37 => { self.registers.a = self.swap(self.registers.a); 2 }
         }
     }
 
@@ -713,7 +741,25 @@ impl CPU {
     fn set_bit(value: u8, bit_pos: u8) -> u8 {
         value | (1 << bit_pos)
     }
-
+    
+    fn shift_left_arithmetic(&mut self, value: u8) -> u8 {
+        let new_value = value << 1;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = value & 0x80 == 0x80;
+        new_value
+    }
+    
+    fn swap(&mut self, value: u8) -> u8 {
+        let new_value = (0b1111_0000 & value) >> 4 | (0b0000_1111 & value) << 4;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = false;
+        new_value
+    }
+    
     fn jump(&mut self, should_jump: bool) {
         if should_jump {
             let lsb = self.bus.read_byte(self.pc + 1) as u16;
