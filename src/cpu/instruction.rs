@@ -497,6 +497,33 @@ impl CPU {
             
             // RL
             0x10 => { self.registers.b = self.rotate_left(self.registers.b, false); 2 }
+            0x11 => { self.registers.c = self.rotate_left(self.registers.c, false); 2 }
+            0x12 => { self.registers.d = self.rotate_left(self.registers.d, false); 2 }
+            0x13 => { self.registers.e = self.rotate_left(self.registers.e, false); 2 }
+            0x14 => { self.registers.h = self.rotate_left(self.registers.h, false); 2 }
+            0x15 => { self.registers.l = self.rotate_left(self.registers.l, false); 2 }
+            0x16 => {
+                let address = self.registers.get_hl();
+                let value = self.rotate_left(self.bus.read_byte(address), true);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x17 => { self.registers.a = self.rotate_left(self.registers.a, false); 2 }
+            
+            // RLC
+            0x00 => { self.registers.b = self.rotate_left(self.registers.b, false); 2 }
+            0x01 => { self.registers.c = self.rotate_left(self.registers.c, false); 2 }
+            0x02 => { self.registers.d = self.rotate_left(self.registers.d, false); 2 }
+            0x03 => { self.registers.e = self.rotate_left(self.registers.e, false); 2 }
+            0x04 => { self.registers.h = self.rotate_left(self.registers.h, false); 2 }
+            0x05 => { self.registers.l = self.rotate_left(self.registers.l, false); 2 }
+            0x06 => {
+                let address = self.registers.get_hl();
+                let value = self.rotate_left(self.bus.read_byte(address), true);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x07 => { self.registers.a = self.rotate_left(self.registers.a, false); 2 }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
