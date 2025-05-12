@@ -752,7 +752,7 @@ impl CPU {
     }
     
     fn swap(&mut self, value: u8) -> u8 {
-        let new_value = (0b1111_0000 & value) >> 4 | (0b0000_1111 & value) << 4;
+        let new_value = value >> 4 | value << 4;
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
