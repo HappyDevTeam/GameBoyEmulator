@@ -92,7 +92,7 @@ impl CPU {
 
             // RRA
             0x1F => {
-                self.registers.a = self.rotate_right_carry(self.registers.a, true);
+                self.registers.a = self.rotate_right_circular(self.registers.a, true);
                 1
             }
 
@@ -171,7 +171,7 @@ impl CPU {
             0x37 => { self.scf(); 1 }
             
             // RLA
-            0x17 => { self.registers.a = self.rotate_left_through_carry(self.registers.a, false); 1 }
+            0x17 => { self.registers.a = self.rotate_left_circular(self.registers.a, false); 1 }
             
             // RLCA
             0x07 => { self.registers.a = self.rotate_left(self.registers.a, false); 1 }
@@ -319,19 +319,19 @@ impl CPU {
             0x3f => { self.registers.a = self.shift_right_logical(self.registers.a); 2 }
 
             // RR
-            0x18 => { self.registers.b = self.rotate_right_carry(self.registers.b, false); 2 }
-            0x19 => { self.registers.c = self.rotate_right_carry(self.registers.c, false); 2 }
-            0x1a => { self.registers.d = self.rotate_right_carry(self.registers.d, false); 2 }
-            0x1b => { self.registers.e = self.rotate_right_carry(self.registers.e, false); 2 }
-            0x1c => { self.registers.h = self.rotate_right_carry(self.registers.h, false); 2 }
-            0x1d => { self.registers.l = self.rotate_right_carry(self.registers.l, false); 2 }
+            0x18 => { self.registers.b = self.rotate_right_circular(self.registers.b, false); 2 }
+            0x19 => { self.registers.c = self.rotate_right_circular(self.registers.c, false); 2 }
+            0x1a => { self.registers.d = self.rotate_right_circular(self.registers.d, false); 2 }
+            0x1b => { self.registers.e = self.rotate_right_circular(self.registers.e, false); 2 }
+            0x1c => { self.registers.h = self.rotate_right_circular(self.registers.h, false); 2 }
+            0x1d => { self.registers.l = self.rotate_right_circular(self.registers.l, false); 2 }
             0x1e => {
                 let address = self.registers.get_hl();
-                let value = self.rotate_right_carry(self.bus.read_byte(address), false);
+                let value = self.rotate_right_circular(self.bus.read_byte(address), false);
                 self.bus.write_byte(address, value);
                 2
             }
-            0x1f => { self.registers.a = self.rotate_right_carry(self.registers.a, false); 2 }
+            0x1f => { self.registers.a = self.rotate_right_circular(self.registers.a, false); 2 }
 
             // RRC
             0x08 => { self.registers.b = self.rotate_right(self.registers.b, false); 2 }
@@ -494,6 +494,9 @@ impl CPU {
             0xFD => { self.registers.l = CPU::set_bit(self.registers.l,                                                             7); 2 }
             0xFE => { let address = self.registers.get_hl(); self.bus.write_byte(address, CPU::set_bit(self.bus.read_byte(address), 7)); 2 }
             0xFF => { self.registers.a = CPU::set_bit(self.registers.a,                                                             7); 2 }
+            
+            // RL
+            0x10 => { self.registers.b = self.rotate_left(self.registers.b, false); 2 }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
@@ -554,9 +557,8 @@ impl CPU {
         value.wrapping_add(1)
     }
 
-    fn rotate_right_carry(&mut self, value: u8, set_zero: bool) -> u8 {
-        let carry_bit = (self.registers.f.carry as u8) << 7;
-        let new_value = carry_bit | (value >> 1);
+    fn rotate_right_circular(&mut self, value: u8, set_zero: bool) -> u8 {
+        let new_value = value.rotate_right(1);
         self.registers.f.zero = set_zero && new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
@@ -565,7 +567,8 @@ impl CPU {
     }
 
     fn rotate_right(&mut self, value: u8, set_zero: bool) -> u8 {
-        let new_value = value.rotate_right(1);
+        let carry_bit = (self.registers.f.carry as u8) << 7;
+        let new_value = carry_bit | (value >> 1);
         self.registers.f.zero = set_zero && new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
@@ -655,9 +658,8 @@ impl CPU {
         self.registers.f.carry = true;
     }
 
-    fn rotate_left_through_carry(&mut self, value: u8, set_zero: bool) -> u8 {
-        let carry_bit = if self.registers.f.carry { 1 } else { 0 };
-        let new_value = carry_bit | (value << 1);
+    fn rotate_left_circular(&mut self, value: u8, set_zero: bool) -> u8 {
+        let new_value = value.rotate_left(1);
         self.registers.f.zero = set_zero && new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
@@ -665,7 +667,8 @@ impl CPU {
         new_value
     }
     fn rotate_left(&mut self, value: u8, set_zero: bool) -> u8 {
-        let new_value = value.rotate_left(1);
+        let carry_bit = if self.registers.f.carry { 1 } else { 0 };
+        let new_value = carry_bit | (value << 1);
         self.registers.f.zero = set_zero && new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
