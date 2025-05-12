@@ -82,25 +82,10 @@ impl CPU {
                 1
             }
             0x3C => {self.registers.a = self.inc_8bit(self.registers.a); 1 }
-            0x03 => {
-                let value = self.registers.get_bc();
-                let new_value = self.inc_16bit(value);
-                self.registers.set_bc(new_value);
-                1
-            }
-            0x13 => {
-                let value = self.registers.get_de();
-                let new_value = self.inc_16bit(value);
-                self.registers.set_bc(new_value);
-                1
-            }
-            0x23 => {
-                let value = self.registers.get_hl();
-                let new_value = self.inc_16bit(value);
-                self.registers.set_bc(new_value);
-                1
-            }
-            0x33 => { self.sp = self.inc_16bit(self.sp); 1 }
+            0x03 => { self.registers.set_af(CPU::inc_16bit(self.registers.get_bc())); 1 }
+            0x13 => { self.registers.set_de(CPU::inc_16bit(self.registers.get_de())); 1 }
+            0x23 => { self.registers.set_hl(CPU::inc_16bit(self.registers.get_hl())); 1 }
+            0x33 => { self.sp = CPU::inc_16bit(self.sp); 1 }
 
             // CCF
             0x3F => { self.registers.f.carry = !self.registers.f.carry; 1 }
@@ -427,7 +412,7 @@ impl CPU {
         new_value
     }
 
-    fn inc_16bit(&mut self, value: u16) -> u16 {
+    fn inc_16bit(value: u16) -> u16 {
         value.wrapping_add(1)
     }
 
