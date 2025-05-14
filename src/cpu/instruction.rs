@@ -10,6 +10,9 @@ impl CPU {
 
     fn execute_not_prefixed(&mut self, byte: u8) -> u16 {
         match byte {
+            // NOP
+            0x00 => { 1 }
+
             // ADD
             0x80 => { self.add(self.registers.b, false); 1 }
             0x81 => { self.add(self.registers.c, false); 1 }
@@ -183,6 +186,13 @@ impl CPU {
             0xCA => { self.jump(self.registers.f.zero == true); 0 }
             0xDA => { self.jump(self.registers.f.carry == true); 0 }
             0xE9 => { self.pc = self.registers.get_hl(); 0 }
+
+            // JR
+            0x18 => { self.jump_relative(true); 0 }
+            0x20 => { self.jump_relative(self.registers.f.zero == false); 0 }
+            0x30 => { self.jump_relative(self.registers.f.carry == false); 0 }
+            0x28 => { self.jump_relative(self.registers.f.zero == true); 0 }
+            0x38 => { self.jump_relative(self.registers.f.carry == true); 0 }
             
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
@@ -556,6 +566,11 @@ impl CPU {
             0x37 => { self.registers.a = self.swap(self.registers.a); 2 }
         }
     }
+    
+    fn read_next_byte(&mut self) -> u8 {
+        self.pc.wrapping_add(1);
+        self.bus.read_byte(self.pc)
+    }
 
     fn add(&mut self, value: u8, with_carry: bool) {
         let add_carry = if with_carry && self.registers.f.carry {
@@ -767,6 +782,14 @@ impl CPU {
             self.pc = lsb | (msb << 8);
         } else {
             self.pc = self.pc.wrapping_add(3);
+        }
+    }
+
+    fn jump_relative(&mut self, should_jump: bool) {
+        if should_jump {
+            self.pc = self.pc.wrapping_add_signed(self.read_next_byte() as i16);
+        } else {
+            self.pc = self.pc.wrapping_add(1)
         }
     }
 }
