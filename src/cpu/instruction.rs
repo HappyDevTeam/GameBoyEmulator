@@ -568,7 +568,7 @@ impl CPU {
     }
     
     fn read_next_byte(&mut self) -> u8 {
-        self.pc.wrapping_add(1);
+        self.pc = self.pc.wrapping_add(1);
         self.bus.read_byte(self.pc)
     }
 
