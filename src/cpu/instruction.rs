@@ -789,7 +789,7 @@ impl CPU {
     fn jump(&mut self, should_jump: bool) {
         if should_jump {
             let lsb = self.bus.read_byte(self.pc + 1) as u16;
-            let msb = self.bus.read_byte(self.pc + 1) as u16;
+            let msb = self.bus.read_byte(self.pc + 2) as u16;
             self.pc = lsb | (msb << 8);
         } else {
             self.pc = self.pc.wrapping_add(3);
