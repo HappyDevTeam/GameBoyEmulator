@@ -193,6 +193,22 @@ impl CPU {
             0x30 => { self.jump_relative(self.registers.f.carry == false); 0 }
             0x28 => { self.jump_relative(self.registers.f.zero == true); 0 }
             0x38 => { self.jump_relative(self.registers.f.carry == true); 0 }
+
+            // LD immediate to register
+            0x06 => { self.registers.b = self.bus.read_byte(self.pc + 1); 2 }
+            0x0E => { self.registers.c = self.bus.read_byte(self.pc + 1); 2 }
+            0x16 => { self.registers.d = self.bus.read_byte(self.pc + 1); 2 }
+            0x1E => { self.registers.e = self.bus.read_byte(self.pc + 1); 2 }
+            0x2E => { self.registers.h = self.bus.read_byte(self.pc + 1); 2 }
+        
+            0x26 => { self.registers.l = self.bus.read_byte(self.pc + 1); 2 }
+            0x3E => {
+                let address = self.registers.get_hl();
+                let value = self.bus.read_byte(self.pc + 1);
+                self.bus.write_byte(address, value);
+                2
+            }
+            0x36 => { self.registers.a = self.bus.read_byte(self.pc + 1); 2 }
             
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
