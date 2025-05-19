@@ -583,11 +583,6 @@ impl CPU {
         }
     }
     
-    fn read_next_byte(&mut self) -> u8 {
-        self.pc = self.pc.wrapping_add(1);
-        self.bus.read_byte(self.pc)
-    }
-
     fn add(&mut self, value: u8, with_carry: bool) {
         let add_carry = if with_carry && self.registers.f.carry {
             1
@@ -803,7 +798,7 @@ impl CPU {
 
     fn jump_relative(&mut self, should_jump: bool) {
         if should_jump {
-            self.pc = self.pc.wrapping_add_signed(self.read_next_byte() as i16);
+            self.pc = self.pc.wrapping_add_signed(self.bus.read_byte(self.pc + 1) as i16);
         } else {
             self.pc = self.pc.wrapping_add(1)
         }
