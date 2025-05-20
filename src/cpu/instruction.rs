@@ -200,7 +200,6 @@ impl CPU {
             0x16 => { self.registers.d = self.bus.read_byte(self.pc + 1); 2 }
             0x1E => { self.registers.e = self.bus.read_byte(self.pc + 1); 2 }
             0x2E => { self.registers.h = self.bus.read_byte(self.pc + 1); 2 }
-        
             0x26 => { self.registers.l = self.bus.read_byte(self.pc + 1); 2 }
             0x3E => {
                 let address = self.registers.get_hl();
