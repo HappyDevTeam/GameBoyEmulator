@@ -208,7 +208,11 @@ impl CPU {
                 2
             }
             0x36 => { self.registers.a = self.bus.read_byte(self.pc + 1); 2 }
-            
+            0x01 => { self.registers.set_bc(self.get_d16()); 3 }
+            0x11 => { self.registers.set_de(self.get_d16()); 3 }
+            0x21 => { self.registers.set_hl(self.get_d16()); 3 }
+            0x31 => { self.sp = self.get_d16(); 3 }
+
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
@@ -784,12 +788,16 @@ impl CPU {
         self.registers.f.carry = false;
         new_value
     }
+
+    fn get_d16(&self) -> u16 {
+        let lsb = self.bus.read_byte(self.pc + 1) as u16;
+        let msb = self.bus.read_byte(self.pc + 2) as u16;
+        lsb | (msb << 8)
+    }
     
     fn jump(&mut self, should_jump: bool) {
         if should_jump {
-            let lsb = self.bus.read_byte(self.pc + 1) as u16;
-            let msb = self.bus.read_byte(self.pc + 2) as u16;
-            self.pc = lsb | (msb << 8);
+            self.pc = self.get_d16();
         } else {
             self.pc = self.pc.wrapping_add(3);
         }
