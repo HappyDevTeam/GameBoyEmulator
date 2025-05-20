@@ -213,6 +213,12 @@ impl CPU {
             0x21 => { self.registers.set_hl(self.get_d16()); 3 }
             0x31 => { self.sp = self.get_d16(); 3 }
 
+            // LD A
+            0x02 => { let address = self.registers.get_bc(); self.bus.write_byte(address, self.registers.a); 1 }
+            0x12 => { let address = self.registers.get_de(); self.bus.write_byte(address, self.registers.a); 1 }
+            0x22 => { let address = self.registers.get_hl(); self.bus.write_byte(address, self.registers.a); self.registers.set_hl(address + 1); 1 }
+            0x32 => { let address = self.registers.get_hl(); self.bus.write_byte(address, self.registers.a); self.registers.set_hl(address - 1); 1 }
+
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
     }
