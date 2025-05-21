@@ -219,6 +219,11 @@ impl CPU {
             0x22 => { let address = self.registers.get_hl(); self.bus.write_byte(address, self.registers.a); self.registers.set_hl(address + 1); 1 }
             0x32 => { let address = self.registers.get_hl(); self.bus.write_byte(address, self.registers.a); self.registers.set_hl(address - 1); 1 }
 
+            0x0A => { self.registers.a = self.bus.read_byte(self.registers.get_bc()); 1 }
+            0x1A => { self.registers.a = self.bus.read_byte(self.registers.get_de()); 1 }
+            0x2A => { let address = self.registers.get_hl(); self.registers.a = self.bus.read_byte(address); self.registers.set_hl(address + 1); 1 }
+            0x3A => { let address = self.registers.get_hl(); self.registers.a = self.bus.read_byte(address); self.registers.set_hl(address - 1); 1 }
+
             // LD SP
             0x08 => {
                 let address = self.get_d16();
