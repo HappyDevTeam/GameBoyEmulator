@@ -255,6 +255,17 @@ impl CPU {
                 self.registers.a = self.bus.read_byte(self.registers.c as u16 | 0xFF00);
                 1
             }
+            
+            // LD A to a16 and vice versa
+            0xE2 => {
+                let address = self.get_d16();
+                self.bus.write_byte(address, self.registers.a);
+                3
+            }
+            0xF2 => {
+                self.registers.a = self.bus.read_byte(self.get_d16());
+                3
+            }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
