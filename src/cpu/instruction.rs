@@ -257,12 +257,12 @@ impl CPU {
             }
             
             // LD A to a16 and vice versa
-            0xE2 => {
+            0xEA => {
                 let address = self.get_d16();
                 self.bus.write_byte(address, self.registers.a);
                 3
             }
-            0xF2 => {
+            0xFA => {
                 self.registers.a = self.bus.read_byte(self.get_d16());
                 3
             }
