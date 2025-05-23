@@ -233,6 +233,28 @@ impl CPU {
                 self.bus.write_byte(address, upper_byte);
                 3
             }
+            
+            // LD from A to a8 and vice versa
+            0xE0 => {
+                let address = self.bus.read_byte(self.pc + 1) as u16 | 0xFF00;
+                self.bus.write_byte(address, self.registers.a);
+                2
+            }
+            0xF0 => {
+                self.registers.a = self.bus.read_byte(self.pc + 1);
+                2
+            }
+            
+            // LD from A to C and vice versa
+            0xE2 => {
+                let address = self.registers.c as u16 | 0xFF00;
+                self.bus.write_byte(address, self.registers.a);
+                1
+            }
+            0xF2 => {
+                self.registers.a = self.bus.read_byte(self.registers.c as u16 | 0xFF00);
+                1
+            }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
