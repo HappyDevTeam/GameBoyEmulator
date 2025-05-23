@@ -235,37 +235,16 @@ impl CPU {
             }
             
             // LD from A to a8 and vice versa
-            0xE0 => {
-                let addr = self.bus.read_byte(self.pc + 1) as u16 | 0xFF00;
-                self.bus.write_byte(addr, self.regs.a);
-                2
-            }
-            0xF0 => {
-                self.regs.a = self.bus.read_byte(self.pc + 1);
-                2
-            }
+            0xE0 => { self.bus.write_byte(self.bus.read_byte(self.pc + 1) as u16 | 0xFF00, self.regs.a); 2 }
+            0xF0 => { self.regs.a = self.bus.read_byte(self.pc + 1); 2 }
             
             // LD from A to C and vice versa
-            0xE2 => {
-                let addr = self.regs.c as u16 | 0xFF00;
-                self.bus.write_byte(addr, self.regs.a);
-                1
-            }
-            0xF2 => {
-                self.regs.a = self.bus.read_byte(self.regs.c as u16 | 0xFF00);
-                1
-            }
+            0xE2 => { self.bus.write_byte(self.regs.c as u16 | 0xFF00, self.regs.a); 1 }
+            0xF2 => { self.regs.a = self.bus.read_byte(self.regs.c as u16 | 0xFF00); 1 }
             
             // LD A to a16 and vice versa
-            0xEA => {
-                let addr = self.get_d16();
-                self.bus.write_byte(addr, self.regs.a);
-                3
-            }
-            0xFA => {
-                self.regs.a = self.bus.read_byte(self.get_d16());
-                3
-            }
+            0xEA => { self.bus.write_byte(self.get_d16(), self.regs.a); 3 }
+            0xFA => { self.regs.a = self.bus.read_byte(self.get_d16()); 3 }
 
             _ => panic!("Unknown instruction found for: 0x{:x}", byte),
         }
